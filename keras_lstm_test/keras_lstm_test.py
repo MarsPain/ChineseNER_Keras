@@ -58,7 +58,7 @@ sequence = tokenizer.texts_to_sequences(texts)  #将文本列表转换为序列�
 word_index = tokenizer.word_index   #将字符串(word)映射为它们作为索引的排名（如ChineseNER中用出现次数作为排名）
 # print(word_index['hi'])
 # print(sequence[2][:20])
-print("找到 %s 个单词" % len(word_index))
+print("在所有文本中找到 %s 个单词" % len(word_index))
 
 #生成Train和validate数据集
 data = pad_sequences(sequence, maxlen=max_sequence_length)  #对序列进行填充处理
@@ -79,3 +79,14 @@ y_val = labels[-nb_validation_samples:]
 print("训练集和验证集已准备好")
 
 #生成词嵌入矩阵（embedding matrix）
+nb_words = min(max_nb_words, len(word_index)) #为什么是最小数
+embedding_matrix = np.zeros((nb_words+1, embedding_dim))
+for word, i in word_index.items():
+    if i > max_nb_words:
+        continue
+    embedding_vector = embedding_index.get(word)
+    if embedding_vector is not None:
+        embedding_matrix[i] = embedding_vector
+# print(embedding_matrix[76])
+# print(embedding_matrix.shape)
+print("embedding_matrix构建完成")
