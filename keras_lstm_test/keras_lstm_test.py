@@ -11,7 +11,7 @@ from keras.layers import Embedding, LSTM, Dense, Activation
 data_dir = "data"
 text_data_dir = data_dir + '/20_newsgroup/'
 max_sequence_length = 1000
-max_nb_words = 20000
+max_nb_words = 20000    #max_features,即设置常用词阈值
 embedding_dim = 100
 validation_split = 0.2  #验证集比例
 batch_size = 32
@@ -52,10 +52,10 @@ for name in sorted(os.listdir(text_data_dir)):
 print('找到 %s 个texts' % len(texts))
 
 #利用keras的Tokenizer对所有texts进行处理，主要将texts中的word映射到相应的index
-tokenizer = Tokenizer(nb_words=max_nb_words)
+tokenizer = Tokenizer()
 tokenizer.fit_on_texts(texts)   #以texts作为训练的文本列表
 sequence = tokenizer.texts_to_sequences(texts)  #将文本列表转换为序列列表，每个序列对应一段文本
-word_index = tokenizer.word_index   #将字符串(word)映射为它们作为索引的排名（如ChineseNER中用出现次数作为排名）
+word_index = tokenizer.word_index   #将字符串(word)映射为它们作为索引的排名（如ChineseNER中用出现次数作为排名，此处应该也是一样）
 # print(word_index['hi'])
 # print(sequence[2][:20])
 print("在所有文本中找到 %s 个单词" % len(word_index))
@@ -79,11 +79,13 @@ y_val = labels[-nb_validation_samples:]
 print("训练集和验证集已准备好")
 
 #生成词嵌入矩阵（embedding matrix）
-nb_words = min(max_nb_words, len(word_index)) #为什么是最小数
+nb_words = min(max_nb_words, len(word_index))
 embedding_matrix = np.zeros((nb_words+1, embedding_dim))
 for word, i in word_index.items():
     if i > max_nb_words:
+        #只对排名高于max_nb_words的word进行向量初始化
         continue
+    #为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
     embedding_vector = embedding_index.get(word)
     if embedding_vector is not None:
         embedding_matrix[i] = embedding_vector
