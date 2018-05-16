@@ -7,6 +7,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Embedding, LSTM, Dense, Activation
+from keras.callbacks import TensorBoard
 
 data_dir = "data"
 text_data_dir = data_dir + '/20_newsgroup/'
@@ -103,8 +104,8 @@ embedding_layer = Embedding(nb_words+1,
 model = Sequential()
 model.add(embedding_layer)
 model.add(LSTM(100, dropout=0.2))
-model.add(Dense(1)) #该全连接层的神经元数量是不是太少了？，设置成32、然后activation设置为relu如何？
-model.add(Activation('sigmoid'))
+#该全连接层的神经元数量是不是太少了？，设置成32、然后activation设置为relu如何？
+model.add(Dense(32, activation='relu'))
 model.add(Dense(len(labels_index), activation='softmax'))
 # model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
 model.summary()
@@ -116,7 +117,8 @@ model.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 print("开始训练。。。")
-model.fit(x_train, y_train, batch_size=batch_size, epochs=5)
+model.fit(x_train, y_train, batch_size=batch_size, epochs=5,
+          callbacks=[TensorBoard(log_dir='./tmp/log')])
 score, acc = model.evaluate(x_val, y_val, batch_size=batch_size)
 print('Test score:', score)
 print('Test accuracy:', acc)
