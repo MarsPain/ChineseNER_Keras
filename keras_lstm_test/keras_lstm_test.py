@@ -95,6 +95,7 @@ print(embedding_matrix.shape)
 print("embedding_matrix构建完成")
 
 #构建模型
+#序列式模型
 embedding_layer = Embedding(nb_words+1,
                             embedding_dim,
                             weights=[embedding_matrix],
@@ -102,11 +103,13 @@ embedding_layer = Embedding(nb_words+1,
 model = Sequential()
 model.add(embedding_layer)
 model.add(LSTM(100, dropout=0.2))
-model.add(Dense(1))
+model.add(Dense(1)) #该全连接层的神经元数量是不是太少了？，设置成32、然后activation设置为relu如何？
 model.add(Activation('sigmoid'))
 model.add(Dense(len(labels_index), activation='softmax'))
-model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
+# model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
 model.summary()
+
+#函数式模型
 
 #训练模型
 model.compile(loss='categorical_crossentropy',
