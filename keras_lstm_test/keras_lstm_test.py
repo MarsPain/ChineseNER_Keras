@@ -97,29 +97,30 @@ print("embedding_matrix构建完成")
 
 #构建模型
 #序列式模型
-embedding_layer = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix],
-                            input_length=max_sequence_length)
-model = Sequential()
-model.add(embedding_layer)
-model.add(LSTM(100, dropout=0.2))
-#该全连接层的神经元数量是不是太少了？，设置成32、然后activation设置为relu如何？
-model.add(Dense(32, activation='relu'))
-model.add(Dense(len(labels_index), activation='softmax'))
-# model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
-model.summary()
+# embedding_layer = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix],
+#                             input_length=max_sequence_length)
+# model = Sequential()
+# model.add(embedding_layer)
+# model.add(LSTM(100, dropout=0.2))
+# #该全连接层的神经元数量是不是太少了？，设置成32、然后activation设置为relu如何？
+# model.add(Dense(32, activation='relu'))
+# model.add(Dense(len(labels_index), activation='softmax'))
+# # model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
+# model.summary()
 
 #函数式模型
-# inputs = Input(shape=(100,))
-# # print(inputs.shape)
-# word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix],
-#               input_length=max_sequence_length)(inputs)
-# # print(word_emb.shape)
-# lstm = LSTM(100, dropout=0.2)(word_emb)
-# # print(lstm.shape)
-# dense = Dense(32, activation='relu')(lstm)
-# predictions = Dense(len(labels_index), activation='softmax')(dense)
-# model = Model(inputs=inputs, outputs=predictions)
-# model.summary()
+#此处是每个样本的维度，每个样本最大长度为1000（每个text1000个单词），而不是每个词的维度，那是下一层的输出
+inputs = Input(shape=(1000,))
+# print(inputs.shape)
+word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix],
+                     input_length=max_sequence_length)(inputs)
+print(word_emb.shape)
+lstm = LSTM(100, dropout=0.2)(word_emb)
+# print(lstm.shape)
+dense = Dense(32, activation='relu')(lstm)
+predictions = Dense(len(labels_index), activation='softmax')(dense)
+model = Model(inputs=inputs, outputs=predictions)
+model.summary()
 
 #训练模型
 model.compile(loss='categorical_crossentropy',
