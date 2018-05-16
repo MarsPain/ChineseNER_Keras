@@ -11,7 +11,7 @@ from keras.layers import Embedding, LSTM, Dense, Activation
 data_dir = "data"
 text_data_dir = data_dir + '/20_newsgroup/'
 max_sequence_length = 1000
-max_nb_words = 20000    #max_features,即设置常用词阈值
+max_nb_words = 20000    #max_features,即设置常用词阈值，从而限定embedding matrix的大小
 embedding_dim = 100
 validation_split = 0.2  #验证集比例
 batch_size = 32
@@ -79,16 +79,41 @@ y_val = labels[-nb_validation_samples:]
 print("训练集和验证集已准备好")
 
 #生成词嵌入矩阵（embedding matrix）
-nb_words = min(max_nb_words, len(word_index))
+#原教程是min，但是这会导致报错，因为这样会导致embedding_matrix过小，没有包含所有单词的词向量，从而导致报错
+nb_words = max(max_nb_words, len(word_index))
 embedding_matrix = np.zeros((nb_words+1, embedding_dim))
 for word, i in word_index.items():
     if i > max_nb_words:
-        #只对排名高于max_nb_words的word进行向量初始化
+        #只对排名高于max_nb_words的word进行向量初始化，其余的
         continue
     #为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
     embedding_vector = embedding_index.get(word)
-    if embedding_vector is not None:
+    if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
         embedding_matrix[i] = embedding_vector
 # print(embedding_matrix[76])
-# print(embedding_matrix.shape)
+print(embedding_matrix.shape)
 print("embedding_matrix构建完成")
+
+#构建模型
+embedding_layer = Embedding(nb_words+1,
+                            embedding_dim,
+                            weights=[embedding_matrix],
+                            input_length=max_sequence_length)
+model = Sequential()
+model.add(embedding_layer)
+model.add(LSTM(100, dropout=0.2))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
+model.add(Dense(len(labels_index), activation='softmax'))
+model.layers[1].trainable=False #在model.summary中将以训练的参数和未训练的参数区分开？此处参数为词向量
+model.summary()
+
+#训练模型
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+print("开始训练。。。")
+model.fit(x_train, y_train, batch_size=batch_size, epochs=5)
+score, acc = model.evaluate(x_val, y_val, batch_size=batch_size)
+print('Test score:', score)
+print('Test accuracy:', acc)
