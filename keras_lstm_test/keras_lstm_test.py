@@ -56,13 +56,15 @@ print('找到 %s 个texts' % len(texts))
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(texts)   #以texts作为训练的文本列表
 sequence = tokenizer.texts_to_sequences(texts)  #将文本列表转换为序列列表，每个序列对应一段文本
-word_index = tokenizer.word_index   #将字符串(word)映射为它们作为索引的排名（如ChineseNER中用出现次数作为排名，此处应该也是一样）
+# print("sequence", sequence[5])  #证明在序列化后文本中的word已经替换成了对应的索引，所以后面可以直接根据embedding_matrix查找对应的词向量
+word_index = tokenizer.word_index   #得到字符串(word)与索引的映射（一般以出现次数作为索引排名的依据，如ChineseNER中用出现次数作为排名，此处应该也是一样）
 # print(word_index['hi'])
 # print(sequence[2][:20])
 print("在所有文本中找到 %s 个单词" % len(word_index))
 
 #生成Train和validate数据集
-data = pad_sequences(sequence, maxlen=max_sequence_length)  #对序列进行填充处理
+data = pad_sequences(sequence, maxlen=max_sequence_length)  #对序列进行填充处理,如果不手动设置maxlen，则默认为最长序列的长度
+# print("data", data[5])
 labels = to_categorical(np.asarray(labels)) #将多类别label转换为one-hot向量
 # print("shape of data tensor:", data.shape)
 # print("shape of label tensor:", labels.shape)
@@ -73,6 +75,7 @@ data = data[indices]    #按照打乱的顺序调整data和label，因为原顺�
 labels = labels[indices]
 nb_validation_samples = int(validation_split*data.shape[0]) #验证集数量
 x_train = data[:-nb_validation_samples]
+# print("x_train", x_train[5])
 y_train = labels[:-nb_validation_samples]
 # print(x_train.shape)
 x_val = data[-nb_validation_samples:]
@@ -81,12 +84,12 @@ print("训练集和验证集已准备好")
 
 #生成词嵌入矩阵（embedding matrix）
 #原教程是min，但是这会导致报错，因为这样会导致embedding_matrix过小，没有包含所有单词的词向量，从而导致报错
-nb_words = max(max_nb_words, len(word_index))
+nb_words = len(word_index)
 embedding_matrix = np.zeros((nb_words+1, embedding_dim))
 for word, i in word_index.items():
-    if i > max_nb_words:
-        #只对排名高于max_nb_words的word进行向量初始化，其余的保留为0向量
-        continue
+    # if i > max_nb_words:
+    #     #只对排名高于max_nb_words的word进行向量初始化，其余的保留为0向量
+    #     continue
     #为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
     embedding_vector = embedding_index.get(word)
     if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
@@ -113,7 +116,7 @@ print("embedding_matrix构建完成")
 inputs = Input(shape=(None,))
 # print(inputs.shape)
 word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix])(inputs)
-print(word_emb.shape)
+# print(word_emb.shape)
 lstm = LSTM(100, dropout=0.2)(word_emb)
 # print(lstm.shape)
 dense = Dense(32, activation='relu')(lstm)
