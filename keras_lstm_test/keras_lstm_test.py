@@ -6,7 +6,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential, load_model, Model
-from keras.layers import Embedding, LSTM, Dense, Activation, Input
+from keras.layers import Embedding, LSTM, Dense, Activation, Input, Bidirectional
 from keras.callbacks import TensorBoard, ModelCheckpoint
 
 data_dir = "data"
@@ -38,7 +38,7 @@ for name in sorted(os.listdir(text_data_dir)):
     path = os.path.join(text_data_dir, name)
     if os.path.isdir(path):
         #为每种类别赋值label ID
-        label_id = len(labels_index)    #一个小trick，根据
+        label_id = len(labels_index)    #一个小trick，根据当前列表长度为当前类别赋予类别名
         labels_index[name] = label_id
         for file_name in sorted(os.listdir(path)):
             #遍历处理每种类别下的所有text文件
@@ -85,7 +85,7 @@ nb_words = max(max_nb_words, len(word_index))
 embedding_matrix = np.zeros((nb_words+1, embedding_dim))
 for word, i in word_index.items():
     if i > max_nb_words:
-        #只对排名高于max_nb_words的word进行向量初始化，其余的
+        #只对排名高于max_nb_words的word进行向量初始化，其余的保留为0向量
         continue
     #为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
     embedding_vector = embedding_index.get(word)
@@ -110,10 +110,9 @@ print("embedding_matrix构建完成")
 
 #函数式模型
 #此处是每个样本的维度，每个样本最大长度为1000（每个text1000个单词），而不是每个词的维度，那是下一层的输出
-inputs = Input(shape=(1000,))
+inputs = Input(shape=(None,))
 # print(inputs.shape)
-word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix],
-                     input_length=max_sequence_length)(inputs)
+word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix])(inputs)
 print(word_emb.shape)
 lstm = LSTM(100, dropout=0.2)(word_emb)
 # print(lstm.shape)
