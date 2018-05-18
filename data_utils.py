@@ -51,11 +51,25 @@ def prepare_data(sentences):
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     # print(tag_to_id)
     tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
-    # print(tags_sequence,print(len(tags_sequence)))
+    # print(tags_sequence,len(tags_sequence))
+
+    #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是tokenizer将“-”识别为空格
+    # tags = []
+    # for s in sentences:
+    #     string = [w[-1] for w in s]
+    #     string = " ".join(string)
+    #     tags.append(string)
+    # # print(tags)
+    # tokenizer = Tokenizer()
+    # tokenizer.fit_on_texts(tags)
+    # tags_sequence = tokenizer.texts_to_sequences(tags)
+    # tag_index = tokenizer.word_index
+    # print("tag_to_id",tag_index)
+    # print(tags_sequence,len(tags_sequence))
 
     train_data.append(sequence)
     train_data.append(word_index)
-    train_data.append(dict_tags)
+    train_data.append(tags_sequence)
     return train_data
 
 def create_mapping(dict):
