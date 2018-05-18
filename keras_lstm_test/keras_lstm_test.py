@@ -55,9 +55,9 @@ print('找到 %s 个texts' % len(texts))
 #利用keras的Tokenizer对所有texts进行处理，主要将texts中的word映射到相应的index
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(texts)   #以texts作为训练的文本列表
-# print("text:", texts[5])
+# print("text:", type(texts), texts[5], type(texts[5]))
 sequence = tokenizer.texts_to_sequences(texts)  #将文本列表转换为序列列表，每个序列对应一段文本
-print("sequence", sequence[5])  #证明在序列化后文本中的word已经替换成了对应的索引，所以后面可以直接根据embedding_matrix查找对应的词向量
+# print("sequence", type(sequence), sequence[5])  #证明在序列化后文本中的word已经替换成了对应的索引，所以后面可以直接根据embedding_matrix查找对应的词向量
 word_index = tokenizer.word_index   #得到字符串(word)与索引的映射（一般以出现次数作为索引排名的依据，如ChineseNER中用出现次数作为排名，此处应该也是一样）
 # print(word_index['hi'])
 # print(sequence[2][:20])
