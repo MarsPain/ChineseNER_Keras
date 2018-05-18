@@ -20,4 +20,4 @@ test_sentences = load_sentences(test_file)
 
 #prepare data，对sentences进行处理得到sentence的序列化表示，以及word到ID的映射序列
 train_data = prepare_data(train_sentences)
-print("train_data:", train_data[0][5], train_data[1])
+# print("train_data:", train_data[0][5], train_data[1])

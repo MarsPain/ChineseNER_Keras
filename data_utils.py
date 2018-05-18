@@ -38,9 +38,32 @@ def prepare_data(sentences):
     #利用keras的tokenizer对texts进行处理
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(texts)   #texts作为处理对象
-    sequence = tokenizer.texts_to_sequences(texts)  #将字符串转换为由索引表示的序列数据
+    sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
     word_index = tokenizer.word_index   #word到索引的映射列表
+
+    tags = [[char[-1] for char in s] for s in sentences]
+    dict_tags = {}
+    for items in tags:
+        for tag in items:
+            dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
+
+    #传统方式获取tag_to_id的映射和tag的序列表示
+    tag_to_id, id_to_tag = create_mapping(dict_tags)
+    # print(tag_to_id)
+    tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
+    # print(tags_sequence,print(len(tags_sequence)))
 
     train_data.append(sequence)
     train_data.append(word_index)
+    train_data.append(dict_tags)
     return train_data
+
+def create_mapping(dict):
+    #根据字典dico创建双向映射
+    sorted_items = sorted(dict.items(), key=lambda x: (-x[1], x[0]))    #按照词频排序
+    # print(sorted_items)
+    # for i, v in enumerate(sorted_items):
+    #     print(i, v)
+    id_to_item = {i: v[0] for i, v in enumerate(sorted_items)}  #id（根据词频排序从0开始）到word
+    item_to_id = {v: k for k, v in id_to_item.items()}  #反转映射
+    return item_to_id, id_to_item
