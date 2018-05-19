@@ -1,7 +1,9 @@
 import os
 import re
 import codecs
+import numpy as np
 from keras.preprocessing.text import Tokenizer
+from model import emb_dim
 
 #加载数据并用嵌套列表存储每个sentence以及sentence中的每个word以及相应的标注
 def load_sentences(path):
@@ -74,8 +76,8 @@ def prepare_data(sentences):
     data.append(tag_index)
     return data
 
+#根据字典dico创建双向映射
 def create_mapping(dict):
-    #根据字典dico创建双向映射
     sorted_items = sorted(dict.items(), key=lambda x: (-x[1], x[0]))    #按照词频排序
     # print(sorted_items)
     # for i, v in enumerate(sorted_items):
@@ -83,3 +85,30 @@ def create_mapping(dict):
     id_to_item = {i: v[0] for i, v in enumerate(sorted_items)}  #id（根据词频排序从0开始）到word
     item_to_id = {v: k for k, v in id_to_item.items()}  #反转映射
     return item_to_id, id_to_item
+
+#将预训练的词向量存储为易查询的字典
+def create_emb_index(emb_file):
+    embedding_index = {}
+    with open(emb_file, encoding='utf-8') as f:
+        for line in f:
+            values = line.split()
+            word = values[0]    #word
+             #相应word的词向量vector，asarray与array都是将结构数据转化为array，区别在于asarray不会占用新内存
+            vector = np.asarray(values[1:], dtype='float32')
+            embedding_index[word] = vector
+    # print(embedding_index['的'])
+    print("已匹配 %s 词向量" % len(embedding_index))
+    return embedding_index
+
+def create_emb_matrix(word_index, emb_dim, embedding_index):
+    nb_words = len(word_index)
+    embedding_matrix = np.zeros((nb_words+1, emb_dim))
+    for word, i in word_index.items():
+        #此处为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
+        embedding_vector = embedding_index.get(word)
+        if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
+            embedding_matrix[i] = embedding_vector
+    # print(embedding_matrix[76])
+    print(embedding_matrix.shape)
+    print("embedding_matrix构建完成")
+    return embedding_matrix

@@ -1,6 +1,7 @@
 import os
 import re
-from data_utils import load_sentences, prepare_data
+import sklearn.model_selection
+from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix
 from model import create_model
 
 #path for data
@@ -27,6 +28,7 @@ test_data = prepare_data(test_sentences)
 
 word_index, tag_index = train_data[1], train_data[3]
 word_sequence_train, tags_sequence_train = train_data[0], train_data[2]
-embedding_matrix = None
+embedding_index = create_emb_index(emb_file)
+embedding_matrix = create_emb_matrix(word_index, embedding_index)
 
 model = create_model(embedding_matrix, tag_index)
