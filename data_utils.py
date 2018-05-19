@@ -52,7 +52,7 @@ def prepare_data(sentences):
     #传统方式获取tag_to_id的映射和tag的序列表示
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
-    print(tag_index)
+    # print(tag_index)
     tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
     # print(tags_sequence,len(tags_sequence))
 
@@ -100,9 +100,8 @@ def create_emb_index(emb_file):
     print("已匹配 %s 词向量" % len(embedding_index))
     return embedding_index
 
-def create_emb_matrix(word_index, emb_dim, embedding_index):
-    nb_words = len(word_index)
-    embedding_matrix = np.zeros((nb_words+1, emb_dim))
+def create_emb_matrix(word_index, embedding_index):
+    embedding_matrix = np.zeros((len(word_index)+1, emb_dim))
     for word, i in word_index.items():
         #此处为什么不能用embedding_index[word]获取词向量？因为用get(word)替代[i],遇到key不存在不会报异常，而是返回None
         embedding_vector = embedding_index.get(word)

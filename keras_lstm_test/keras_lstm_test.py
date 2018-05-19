@@ -84,9 +84,10 @@ y_val = labels[-nb_validation_samples:]
 print("训练集和验证集已准备好")
 
 #生成词嵌入矩阵（embedding matrix）
-#原教程是min，但是这会导致报错，因为这样会导致embedding_matrix过小，没有包含所有单词的词向量，从而导致报错
+#原教程是选择len(word_index)和预设的max_nb_words中的最小值，但是这会导致报错，
+# 因为这样会导致embedding_matrix过小，没有包含所有单词的词向量，从而导致报错
 nb_words = len(word_index)
-embedding_matrix = np.zeros((nb_words+1, embedding_dim))
+embedding_matrix = np.zeros((nb_words+1, embedding_dim))    #为什么要多加一行？
 for word, i in word_index.items():
     # if i > max_nb_words:
     #     #只对排名高于max_nb_words的word进行向量初始化，其余的保留为0向量
@@ -95,7 +96,7 @@ for word, i in word_index.items():
     embedding_vector = embedding_index.get(word)
     if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
         embedding_matrix[i] = embedding_vector
-# print(embedding_matrix[76])
+print(embedding_matrix[214873])
 print(embedding_matrix.shape)
 print("embedding_matrix构建完成")
 

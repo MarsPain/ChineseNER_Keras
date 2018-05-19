@@ -27,8 +27,12 @@ dev_data = prepare_data(dev_sentences)
 test_data = prepare_data(test_sentences)
 
 word_index, tag_index = train_data[1], train_data[3]
+# print(len(word_index))
 word_sequence_train, tags_sequence_train = train_data[0], train_data[2]
+# print(word_sequence_train[2], '\n', tags_sequence_train[2])
 embedding_index = create_emb_index(emb_file)
+# print(embedding_index)
 embedding_matrix = create_emb_matrix(word_index, embedding_index)
+# print(embedding_matrix)
 
 model = create_model(embedding_matrix, tag_index)
