@@ -21,28 +21,31 @@ optimizer = "adam"
 lr = 0.001 #learning rate
 epoch = 10
 
-#构建模型
-input = Input(shape=(None,))
-#word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
-word_emb = Embedding(len(word_index)+1, emb_dim, weights=[embedding_matrix], dropout=0.5)(input)
-bilstm = Bidirectional(LSTM(100, return_sequences=True), dropout=0.5)(word_emb)
-#tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
-# (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
-# 最后输出维度为shape(None,None,len(tag_index)),每个节点的输出可以直接经过激活层进行判断，
-# 也可以输入到crf层进行进一步的处理
-dense = TimeDistributed(Dense(len(tag_index), activation='softmax'))(bilstm)
-model = Model(inputs=inputs, outputs=dense)
-# crf_layer = CRF(len(tag_index), sparse_target = True) #若后接CRF
-# crf = crf_layer(dense)
-# model = Model(inputs=inputs, outputs=crf)
-model.summary()
+def create_model(embedding_matrix, tag_index):
+    #构建模型
+    input = Input(shape=(None,))
+    #word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
+    word_emb = Embedding(len(embedding_matrix)+1, emb_dim, weights=[embedding_matrix], dropout=0.5)(input)
+    bilstm = Bidirectional(LSTM(100, return_sequences=True), dropout=0.5)(word_emb)
+    #tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
+    # (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
+    # 最后输出维度为shape(None,None,len(tag_index)),每个节点的输出可以直接经过激活层进行判断，
+    # 也可以输入到crf层进行进一步的处理
+    dense = TimeDistributed(Dense(len(tag_index), activation='softmax'))(bilstm)
+    model = Model(inputs=input, outputs=dense)
+    # crf_layer = CRF(len(tag_index), sparse_target = True) #若后接CRF
+    # crf = crf_layer(dense)
+    # model = Model(inputs=inputs, outputs=crf)
+    model.summary()
 
-# 编译模型
-optmr = optimizers.Adam(lr=lr, beta_1=0.5)
-model.compile(loss='categorical_crossentropy',
-              optimizer='adam',
-              metrics=['accuracy'])
-#若使用crf作为最后一层，则修改模型编译的配置：
-# model.compile(loss='crf.loss_function',
-#               optimizer='adam',
-#               metrics=['crf.accuracy'])
+    # 编译模型
+    optmr = optimizers.Adam(lr=lr, beta_1=0.5)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+    #若使用crf作为最后一层，则修改模型编译的配置：
+    # model.compile(loss='crf.loss_function',
+    #               optimizer='adam',
+    #               metrics=['crf.accuracy'])
+
+    return model

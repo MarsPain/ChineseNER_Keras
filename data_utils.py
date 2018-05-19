@@ -28,7 +28,7 @@ def load_sentences(path):
     return sentences
 
 def prepare_data(sentences):
-    train_data = []
+    data = []
     texts = []
     for s in sentences:
         string = [w[0] for w in s]
@@ -38,7 +38,7 @@ def prepare_data(sentences):
     #利用keras的tokenizer对texts进行处理
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(texts)   #texts作为处理对象
-    sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
+    word_sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
     word_index = tokenizer.word_index   #word到索引的映射列表
 
     tags = [[char[-1] for char in s] for s in sentences]
@@ -49,7 +49,8 @@ def prepare_data(sentences):
 
     #传统方式获取tag_to_id的映射和tag的序列表示
     tag_to_id, id_to_tag = create_mapping(dict_tags)
-    # print(tag_to_id)
+    tag_index = tag_to_id
+    print(tag_index)
     tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
     # print(tags_sequence,len(tags_sequence))
 
@@ -67,10 +68,11 @@ def prepare_data(sentences):
     # print("tag_to_id",tag_index)
     # print(tags_sequence,len(tags_sequence))
 
-    train_data.append(sequence)
-    train_data.append(word_index)
-    train_data.append(tags_sequence)
-    return train_data
+    data.append(word_sequence)
+    data.append(word_index)
+    data.append(tags_sequence)
+    data.append(tag_index)
+    return data
 
 def create_mapping(dict):
     #根据字典dico创建双向映射

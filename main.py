@@ -1,6 +1,7 @@
 import os
 import re
 from data_utils import load_sentences, prepare_data
+from model import create_model
 
 #path for data
 # train_file = os.path.join("data", "example.train")
@@ -20,4 +21,12 @@ test_sentences = load_sentences(test_file)
 
 #prepare data，对sentences进行处理得到sentence的序列化表示，以及word到ID的映射序列
 train_data = prepare_data(train_sentences)
-print("train_data:", "\n", train_data[0][5], "\n", train_data[1], "\n", train_data[2])
+# print("train_data:", "\n", train_data[0][2], "\n", train_data[1], "\n", train_data[2][2])
+dev_data = prepare_data(dev_sentences)
+test_data = prepare_data(test_sentences)
+
+word_index, tag_index = train_data[1], train_data[3]
+word_sequence_train, tags_sequence_train = train_data[0], train_data[2]
+embedding_matrix = None
+
+model = create_model(embedding_matrix, tag_index)
