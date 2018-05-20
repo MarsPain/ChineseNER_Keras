@@ -4,6 +4,7 @@ import codecs
 import numpy as np
 from keras.preprocessing.text import Tokenizer
 from keras.utils.np_utils import to_categorical
+from sklearn.preprocessing import OneHotEncoder
 
 emb_dim = 100
 max_sequence_length = 200
@@ -53,13 +54,25 @@ def prepare_data(sentences):
     for items in tags:
         for tag in items:
             dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
+    # print(dict_tags)
 
     #传统方式获取tag_to_id的映射和tag的序列表示
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
     # print(tag_index)
-    tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
-    labels = to_categorical(tags_sequence) #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
+    tags_sequence = [[tag_index[w[-1]] for w in s] for s in sentences]  #得到序列化的tags)
+    # onehot_encoder = OneHotEncoder(sparse=False)
+    # onehot_encoded = onehot_encoder.fit_transform(np.asarray(tags_sequence))
+
+    #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
+    # print("tags_sequence:", "\n", type(tags_sequence), tags_sequence)
+    # labels = to_categorical(np.asarray(tags_sequence))
+    # labels = []
+    # for i in tags_sequence:
+    #     label = to_categorical(np.asarray(i))
+    #     labels.append(np.asarray(label))
+    # labels = np.asarray(labels)
+
     # print(tags_sequence,len(tags_sequence))
 
     #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是tokenizer将“-”识别为空格
@@ -78,7 +91,7 @@ def prepare_data(sentences):
 
     data.append(word_sequence)
     data.append(word_index)
-    data.append(labels)
+    data.append(tags_sequence)
     data.append(tag_index)
     return data
 

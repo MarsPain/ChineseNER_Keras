@@ -31,6 +31,7 @@ test_data = prepare_data(test_sentences)
 word_index, tag_index = train_data[1], train_data[3]
 # print(len(word_index))
 word_sequence_train, labels_train = train_data[0], train_data[2]
+# print(labels_train, labels_train.shape)
 # print(word_sequence_train[50], '\n', tags_sequence_train[50])
 embedding_index = create_emb_index(emb_file)
 # print(embedding_index)

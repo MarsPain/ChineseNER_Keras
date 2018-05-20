@@ -67,8 +67,7 @@ print("在所有文本中找到 %s 个单词" % len(word_index))
 data = pad_sequences(sequence, maxlen=max_sequence_length)  #对序列进行填充处理,如果不手动设置maxlen，则默认为最长序列的长度
 # print("data", data[5], len(data[1]), len(data[5]))
 labels = to_categorical(np.asarray(labels)) #将多类别label转换为one-hot向量
-# print("shape of data tensor:", data.shape)
-# print("shape of label tensor:", labels.shape)
+# print("label tensor:", labels, type(labels))
 indices = np.arange(data.shape[0])
 # print(indices)
 np.random.shuffle(indices)  #打乱索引顺序
@@ -114,7 +113,7 @@ print("embedding_matrix构建完成")
 # model.summary()
 
 #函数式模型
-#此处是每个样本的维度，每个样本最大长度为1000（每个text1000个单词），而不是每个词的维度，那是下一层的输出
+#Input的shape是每个样本的维度，每个样本最大长度为1000（每个text1000个单词），而不是每个词的维度，那是下一层的输出
 inputs = Input(shape=(None,))
 # print(inputs.shape)
 word_emb = Embedding(nb_words+1,embedding_dim,weights=[embedding_matrix])(inputs)
