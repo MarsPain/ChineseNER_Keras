@@ -3,7 +3,10 @@ import re
 import codecs
 import numpy as np
 from keras.preprocessing.text import Tokenizer
-from model import emb_dim
+from keras.utils.np_utils import to_categorical
+
+emb_dim = 100
+max_sequence_length = 200
 
 #加载数据并用嵌套列表存储每个sentence以及sentence中的每个word以及相应的标注
 def load_sentences(path):
@@ -41,6 +44,8 @@ def prepare_data(sentences):
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(texts)   #texts作为处理对象
     word_sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
+    #是否需要对word_sequence进行填充处理？
+    # print("word_sequence:", type(word_sequence))
     word_index = tokenizer.word_index   #word到索引的映射列表
 
     tags = [[char[-1] for char in s] for s in sentences]
@@ -54,6 +59,7 @@ def prepare_data(sentences):
     tag_index = tag_to_id
     # print(tag_index)
     tags_sequence = [[tag_to_id[w[-1]] for w in s] for s in sentences]  #得到序列化的tags
+    labels = to_categorical(tags_sequence) #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
     # print(tags_sequence,len(tags_sequence))
 
     #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是tokenizer将“-”识别为空格
@@ -72,7 +78,7 @@ def prepare_data(sentences):
 
     data.append(word_sequence)
     data.append(word_index)
-    data.append(tags_sequence)
+    data.append(labels)
     data.append(tag_index)
     return data
 
@@ -108,6 +114,6 @@ def create_emb_matrix(word_index, embedding_index):
         if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
             embedding_matrix[i] = embedding_vector
     # print(embedding_matrix[76])
-    print(embedding_matrix.shape)
+    # print(embedding_matrix.shape)
     print("embedding_matrix构建完成")
     return embedding_matrix

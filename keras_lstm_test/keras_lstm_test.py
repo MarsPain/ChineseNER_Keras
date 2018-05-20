@@ -65,7 +65,7 @@ print("在所有文本中找到 %s 个单词" % len(word_index))
 
 #生成Train和validate数据集
 data = pad_sequences(sequence, maxlen=max_sequence_length)  #对序列进行填充处理,如果不手动设置maxlen，则默认为最长序列的长度
-# print("data", data[5])
+# print("data", data[5], len(data[1]), len(data[5]))
 labels = to_categorical(np.asarray(labels)) #将多类别label转换为one-hot向量
 # print("shape of data tensor:", data.shape)
 # print("shape of label tensor:", labels.shape)
@@ -96,7 +96,7 @@ for word, i in word_index.items():
     embedding_vector = embedding_index.get(word)
     if embedding_vector is not None:    #若该词存在于embedding_index中，则初始化，否则保持为0向量
         embedding_matrix[i] = embedding_vector
-print(embedding_matrix[214873])
+# print(embedding_matrix[214873])
 print(embedding_matrix.shape)
 print("embedding_matrix构建完成")
 
