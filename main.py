@@ -4,6 +4,7 @@ import sklearn.model_selection
 from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix
 from model import create_model
 
+
 batch_size = 32
 
 #path for data

@@ -2,9 +2,10 @@ import os
 import re
 import codecs
 import numpy as np
-from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from keras.utils.np_utils import to_categorical
 from sklearn.preprocessing import OneHotEncoder
+from keras.preprocessing.sequence import pad_sequences
 
 emb_dim = 100
 max_sequence_length = 200
@@ -46,6 +47,7 @@ def prepare_data(sentences):
     tokenizer.fit_on_texts(texts)   #texts作为处理对象
     word_sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
     #是否需要对word_sequence进行填充处理？
+    word_sequence = pad_sequences(word_sequence, maxlen=max_sequence_length)
     # print("word_sequence:", type(word_sequence))
     word_index = tokenizer.word_index   #word到索引的映射列表
 
@@ -60,17 +62,34 @@ def prepare_data(sentences):
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
     # print(tag_index)
-    tags_sequence = [[tag_index[w[-1]] for w in s] for s in sentences]  #得到序列化的tags)
-    # onehot_encoder = OneHotEncoder(sparse=False)
-    # onehot_encoded = onehot_encoder.fit_transform(np.asarray(tags_sequence))
-
+    #得到序列化的tags
+    # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
+    # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
+    all_label = []
+    for s in sentences:
+        for i in range(max_sequence_length):
+            if i < len(s):
+                all_label.append(tag_index[s[i][-1]])
+            else:
+                all_label.append(0)
+    print("all_label:", all_label)
+    # print("tags_sequence:", tags_sequence.shape, type(tags_sequence))
     #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
-    # print("tags_sequence:", "\n", type(tags_sequence), tags_sequence)
-    # labels = to_categorical(np.asarray(tags_sequence))
+    all_label = to_categorical(all_label)
+    print("all_label:", all_label)
+    labels = []
+    for i in range(len(sentences)):
+        label = []
+        for j in range(max_sequence_length):
+            label.append(all_label)
+        labels.append(label)
+    # labels = np.asarray(labels)
+
     # labels = []
     # for i in tags_sequence:
     #     label = to_categorical(np.asarray(i))
-    #     labels.append(np.asarray(label))
+    #     labels.append(label)
+    # print(labels)
     # labels = np.asarray(labels)
 
     # print(tags_sequence,len(tags_sequence))
@@ -81,17 +100,22 @@ def prepare_data(sentences):
     #     string = [w[-1] for w in s]
     #     string = " ".join(string)
     #     tags.append(string)
-    # # print(tags)
-    # tokenizer = Tokenizer()
-    # tokenizer.fit_on_texts(tags)
-    # tags_sequence = tokenizer.texts_to_sequences(tags)
+    # print(tags)
+    # tags_sequence = text_to_word_sequence(tags, split=" ")
     # tag_index = tokenizer.word_index
     # print("tag_to_id",tag_index)
     # print(tags_sequence,len(tags_sequence))
 
+    #使用keras的preprocessing.text包中的text_to_word_sequence和one-hot获取tag的序列表示
+    # tag_to_id, id_to_tag = create_mapping(dict_tags)
+    # tag_index = tag_to_id
+    # # print(tag_index)
+    # tags_sequence = [[tag_index[w[-1]] for w in s] for s in sentences]
+    # tags_sequence = text_to_word_sequence(np.asarray(tags_sequence), split=" ")
+
     data.append(word_sequence)
     data.append(word_index)
-    data.append(tags_sequence)
+    data.append(labels)
     data.append(tag_index)
     return data
 
