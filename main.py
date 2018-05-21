@@ -8,13 +8,13 @@ from model import create_model
 batch_size = 32
 
 #path for data
-train_file = os.path.join("data", "example.train")
-test_file = os.path.join("data", "example.test")
-dev_file = os.path.join("data", "example.dev")
+# train_file = os.path.join("data", "example.train")
+# test_file = os.path.join("data", "example.test")
+# dev_file = os.path.join("data", "example.dev")
 #path for data_medicine
-# train_file = os.path.join("data", "example_medicine.train")
-# test_file = os.path.join("data", "example_medicine.test")
-# dev_file = os.path.join("data", "example_medicine.dev")
+train_file = os.path.join("data", "example_medicine.train")
+test_file = os.path.join("data", "example_medicine.test")
+dev_file = os.path.join("data", "example_medicine.dev")
 emb_file = os.path.join("data", "wiki_100.utf8")    #path for pre_trained embedding
 
 #load data and get sentences

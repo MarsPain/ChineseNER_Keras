@@ -8,7 +8,7 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.sequence import pad_sequences
 
 emb_dim = 100
-max_sequence_length = 200
+max_sequence_length = 50
 
 #加载数据并用嵌套列表存储每个sentence以及sentence中的每个word以及相应的标注
 def load_sentences(path):
@@ -48,7 +48,7 @@ def prepare_data(sentences):
     word_sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
     #是否需要对word_sequence进行填充处理？
     word_sequence = pad_sequences(word_sequence, maxlen=max_sequence_length)
-    # print("word_sequence:", type(word_sequence))
+    print("word_sequence:", type(word_sequence), word_sequence.shape)
     word_index = tokenizer.word_index   #word到索引的映射列表
 
     tags = [[char[-1] for char in s] for s in sentences]
@@ -72,18 +72,27 @@ def prepare_data(sentences):
                 all_label.append(tag_index[s[i][-1]])
             else:
                 all_label.append(0)
-    print("all_label:", all_label)
+    # print("all_label:", all_label)
     # print("tags_sequence:", tags_sequence.shape, type(tags_sequence))
     #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
     all_label = to_categorical(all_label)
-    print("all_label:", all_label)
+    # print("all_label:", all_label)
     labels = []
     for i in range(len(sentences)):
-        label = []
-        for j in range(max_sequence_length):
-            label.append(all_label)
-        labels.append(label)
-    # labels = np.asarray(labels)
+        # label = []
+        # # for j in range(max_sequence_length):
+        # #     label.append(all_label)
+        # label.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
+        # labels.append(label)
+
+        labels.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
+
+        j = i
+        while j == 5:
+            print("labels:", labels)
+            j += 1
+    labels = np.asarray(labels)
+    print("labels:", labels.shape)
 
     # labels = []
     # for i in tags_sequence:
