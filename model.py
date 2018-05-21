@@ -2,9 +2,6 @@ import numpy as np
 import os
 import sys
 import random
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.utils.np_utils import to_categorical
 from keras.models import Sequential, load_model, Model,optimizers
 from keras.layers import Embedding, LSTM, Dense, Activation, Input, Bidirectional, TimeDistributed
 from keras.callbacks import TensorBoard, ModelCheckpoint

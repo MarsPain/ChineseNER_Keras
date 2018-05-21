@@ -41,7 +41,7 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
 model = create_model(embedding_matrix, tag_index)
-model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=3)
+model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=5)
 score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
 print('Test score:', score)
 print('Test accuracy:', acc)

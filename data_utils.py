@@ -58,13 +58,14 @@ def prepare_data(sentences):
             dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
     # print(dict_tags)
 
-    #传统方式获取tag_to_id的映射和tag的序列表示
+    #传统方法获取tag_to_id的映射和tag的序列表示
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
     # print(tag_index)
     #得到序列化的tags
     # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
     # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
+    # print("tags_sequence:", tags_sequence.shape, type(tags_sequence))
     all_label = []
     for s in sentences:
         for i in range(max_sequence_length):
@@ -73,37 +74,16 @@ def prepare_data(sentences):
             else:
                 all_label.append(0)
     # print("all_label:", all_label)
-    # print("tags_sequence:", tags_sequence.shape, type(tags_sequence))
-    #将多类别label转换为one-hot向量,tags_sequence是嵌套列表，用for循环调用to_categorical
+    #将多类别label转换为one-hot向量
     all_label = to_categorical(all_label)
     # print("all_label:", all_label)
     labels = []
     for i in range(len(sentences)):
-        # label = []
-        # # for j in range(max_sequence_length):
-        # #     label.append(all_label)
-        # label.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
-        # labels.append(label)
-
         labels.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
-
-        j = i
-        while j == 5:
-            print("labels:", labels)
-            j += 1
     labels = np.asarray(labels)
     print("labels:", labels.shape)
 
-    # labels = []
-    # for i in tags_sequence:
-    #     label = to_categorical(np.asarray(i))
-    #     labels.append(label)
-    # print(labels)
-    # labels = np.asarray(labels)
-
-    # print(tags_sequence,len(tags_sequence))
-
-    #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是tokenizer将“-”识别为空格
+    #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是存在tokenizer将“-”识别为空格所以行不通
     # tags = []
     # for s in sentences:
     #     string = [w[-1] for w in s]
@@ -115,7 +95,8 @@ def prepare_data(sentences):
     # print("tag_to_id",tag_index)
     # print(tags_sequence,len(tags_sequence))
 
-    #使用keras的preprocessing.text包中的text_to_word_sequence和one-hot获取tag的序列表示
+    #使用keras的preprocessing.text包中的text_to_word_sequence和one-hot获取tag的序列表示，
+    # 无法对嵌套列表进行处理，按
     # tag_to_id, id_to_tag = create_mapping(dict_tags)
     # tag_index = tag_to_id
     # # print(tag_index)
