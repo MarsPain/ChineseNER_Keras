@@ -5,7 +5,7 @@ import random
 from keras.models import Sequential, load_model, Model,optimizers
 from keras.layers import Embedding, LSTM, Dense, Activation, Input, Bidirectional, TimeDistributed
 from keras.callbacks import TensorBoard, ModelCheckpoint
-# from keras_contrib.layers import CRF
+from keras_contrib.layers import CRF
 
 is_train = True
 is_save = True
@@ -29,20 +29,20 @@ def create_model(embedding_matrix, tag_index):
     # print("bilstm:", bilstm)
     dense = TimeDistributed(Dense(len(tag_index), activation='softmax'))(bilstm)
     # print("dense:", dense)
-    model = Model(inputs=input, outputs=dense)
-    # crf_layer = CRF(len(tag_index), sparse_target = True) #若后接CRF
-    # crf = crf_layer(dense)
-    # model = Model(inputs=inputs, outputs=crf)
+    # model = Model(inputs=input, outputs=dense)
+    crf_layer = CRF(len(tag_index), sparse_target = True) #若后接CRF
+    crf = crf_layer(dense)
+    model = Model(inputs=input, outputs=crf)
     model.summary()
 
     # 编译模型
     optmr = optimizers.Adam(lr=lr, beta_1=0.5)
-    model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
-                  metrics=['accuracy'])
+    # model.compile(loss='categorical_crossentropy',
+    #               optimizer=optmr,
+    #               metrics=['accuracy'])
     #若使用crf作为最后一层，则修改模型编译的配置：
-    # model.compile(loss='crf.loss_function',
-    #               optimizer='adam',
-    #               metrics=['crf.accuracy'])
+    model.compile(loss=crf_layer.loss_function,
+                  optimizer=optmr,
+                  metrics=[crf_layer.accuracy])
 
     return model

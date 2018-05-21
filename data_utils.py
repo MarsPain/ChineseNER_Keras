@@ -75,7 +75,7 @@ def prepare_data(sentences):
                 all_label.append(0)
     # print("all_label:", all_label)
     #将多类别label转换为one-hot向量
-    all_label = to_categorical(all_label)
+    all_label = to_categorical(all_label)   #测试下to_categorical的参数即使是嵌套数组，依然能得到整个列表的one-hot表示？
     # print("all_label:", all_label)
     labels = []
     for i in range(len(sentences)):
