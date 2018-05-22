@@ -20,8 +20,8 @@ def create_model(embedding_matrix, tag_index):
     #构建模型
     input = Input(shape=(None,))
     #word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
-    word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix], dropout=0.5)(input)
-    bilstm = Bidirectional(LSTM(100, return_sequences=True))(word_emb)
+    word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
+    bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.2))(word_emb)
     #tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
     # (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
     # 最后输出维度为shape(None,None,len(tag_index)),每个节点的输出可以直接经过激活层进行判断，
