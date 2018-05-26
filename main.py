@@ -5,17 +5,17 @@ from data_utils import load_sentences, prepare_data, create_emb_index, create_em
 from model import create_model
 
 
-batch_size = 500
+batch_size = 200
 
 #path for data
-# train_file = os.path.join("data", "example.train")
-# dev_file = os.path.join("data", "example.dev")
+train_file = os.path.join("data", "example.train")
+dev_file = os.path.join("data", "example.dev")
 #path for data_medicine
 # train_file = os.path.join("data", "example_medicine.train")
 # dev_file = os.path.join("data", "example_medicine.dev")
 
-train_file = os.path.join("data", "example_medicine_all.train")
-dev_file = os.path.join("data", "example_medicine_all.dev")
+# train_file = os.path.join("data", "example_medicine_all.train")
+# dev_file = os.path.join("data", "example_medicine_all.dev")
 emb_file = os.path.join("data", "wiki_100.utf8")    #path for pre_trained embedding
 
 #load data and get sentences
@@ -40,7 +40,7 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
 model = create_model(embedding_matrix, tag_index)
-model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=500)
+model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=50)
 score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
 print('Test score:', score)
 print('Test accuracy:', acc)
