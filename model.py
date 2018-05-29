@@ -4,9 +4,10 @@ import sys
 import random
 from keras.models import Sequential, load_model, Model,optimizers
 from keras.layers import Embedding, LSTM, Dense, Activation, Input, Bidirectional, \
-    TimeDistributed, Dropout
+    TimeDistributed, Dropout, concatenate
 from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras_contrib.layers import CRF
+from keras.initializers import Zeros
 
 is_train = True
 is_save = True
@@ -15,12 +16,18 @@ lstm_dim = 100  #num of hidden units in LSTM
 dropout = 0.5
 optimizer = "adam"
 lr = 0.001 #learning rate
+seg_dim = 35 #词向量维度
 
 def create_model(embedding_matrix, tag_index):
     #构建BiLSTM+CRF模型
-    input = Input(shape=(None,))
+    char_input = Input(shape=(None,))
     #word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
-    word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
+    word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(char_input)
+    #若需要词特征，则进行字词向量的拼接
+    if seg_dim:
+        seg_input = Input(shape=(None, ))
+        seg_emb = Embedding(4, seg_dim)(seg_input)
+        word_emb = concatenate([word_emb, seg_emb], axis=-1)
     bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.8))(word_emb)
     #tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
     # (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
@@ -32,7 +39,10 @@ def create_model(embedding_matrix, tag_index):
     # model = Model(inputs=input, outputs=dense)
     crf_layer = CRF(len(tag_index), sparse_target=True) #若后接CRF
     crf = crf_layer(dense)
-    model = Model(inputs=input, outputs=crf)
+    if seg_dim:
+        model = Model(inputs=[char_input, seg_input], outputs=crf)
+    else:
+        model = Model(inputs=char_input, outputs=crf)
     model.summary()
     # 编译模型
     optmr = optimizers.Adam(lr=lr, beta_1=0.5)

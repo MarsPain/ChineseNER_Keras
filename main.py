@@ -9,14 +9,14 @@ batch_size = 30
 seg_dim = 35    #词向量维度
 
 #path for data
-# train_file = os.path.join("data", "example.train")
-# dev_file = os.path.join("data", "example.dev")
+train_file = os.path.join("data", "example.train")
+dev_file = os.path.join("data", "example.dev")
 #path for data_medicine_three
 # train_file = os.path.join("data", "example_medicine_three.train")
 # dev_file = os.path.join("data", "example_medicine_three.dev")
 #path for data_medicine_all
-train_file = os.path.join("data", "example_medicine_all.train")
-dev_file = os.path.join("data", "example_medicine_all.dev")
+# train_file = os.path.join("data", "example_medicine_all.train")
+# dev_file = os.path.join("data", "example_medicine_all.dev")
 emb_file = os.path.join("data", "wiki_100.utf8")    #path for pre_trained embedding
 
 #load data and get sentences
@@ -32,6 +32,8 @@ dev_data = prepare_data(dev_sentences, seg_dim)
 word_index, tag_index = train_data[1], train_data[3]
 # print(len(word_index))
 word_sequence_train, labels_train = train_data[0], train_data[2]
+if seg_dim:
+    seg_sequence = train_data[4]
 # print(labels_train, labels_train.shape)
 # print(word_sequence_train[50], '\n', tags_sequence_train[50])
 embedding_index = create_emb_index(emb_file)
@@ -41,7 +43,7 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
 model = create_model(embedding_matrix, tag_index)
-model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=300)
+model.fit([word_sequence_train, seg_sequence], labels_train, batch_size=batch_size, epochs=300)
 score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
 print('Test score:', score)
 print('Test accuracy:', acc)

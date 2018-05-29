@@ -47,8 +47,10 @@ def prepare_data(sentences, seg_dim):
         if seg_dim:
             segs_features = get_seg_features("".join(string))
             seg_sequence.append(segs_features)
-    seg_sequence = np.asarray(seg_sequence)
-    print("seg_sequence:", type(seg_sequence), seg_sequence.shape)
+    if len(seg_sequence) > 0:
+        seg_sequence = np.asarray(seg_sequence)
+        print("seg_sequence:", type(seg_sequence), seg_sequence.shape)
+
 
     #利用keras的tokenizer对texts进行处理
     tokenizer = Tokenizer()
@@ -115,6 +117,8 @@ def prepare_data(sentences, seg_dim):
     data.append(word_index)
     data.append(labels)
     data.append(tag_index)
+    if len(seg_sequence) > 0:
+        data.append(seg_sequence)
     return data
 
 #根据字典dico创建双向映射
@@ -166,4 +170,9 @@ def get_seg_features(string):
             tmp[0] = 1
             tmp[-1] = 3
             seg_feature.extend(tmp)
+    while len(seg_feature) < 50:
+        seg_feature.extend([0])
+    if len(seg_feature) > 50:
+        seg_feature = seg_feature[:50]
+    # print(len(seg_feature))
     return seg_feature
