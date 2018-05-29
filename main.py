@@ -6,6 +6,7 @@ from model import create_model
 
 
 batch_size = 30
+seg_dim = 35    #词向量维度
 
 #path for data
 # train_file = os.path.join("data", "example.train")
@@ -24,9 +25,9 @@ dev_sentences = load_sentences(dev_file)
 # print(train_sentences[5], '\n', dev_sentences[5], '\n', dev_sentences[5])
 
 #prepare data，对sentences进行处理得到sentence的序列化表示，以及word到ID的映射序列
-train_data = prepare_data(train_sentences)
+train_data = prepare_data(train_sentences, seg_dim)
 # print("train_data:", "\n", train_data[0][2], "\n", train_data[1], "\n", train_data[2][2])
-dev_data = prepare_data(dev_sentences)
+dev_data = prepare_data(dev_sentences, seg_dim)
 
 word_index, tag_index = train_data[1], train_data[3]
 # print(len(word_index))

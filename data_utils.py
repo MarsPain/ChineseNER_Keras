@@ -6,6 +6,7 @@ from keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from keras.utils.np_utils import to_categorical
 from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.sequence import pad_sequences
+import jieba
 
 emb_dim = 100
 max_sequence_length = 50
@@ -34,13 +35,20 @@ def load_sentences(path):
 
     return sentences
 
-def prepare_data(sentences):
+def prepare_data(sentences, seg_dim):
     data = []
     texts = []
+    seg_sequence = []
     for s in sentences:
         string = [w[0] for w in s]
         string = " ".join(string)   #由于是处理中文，所以拼接的时候加上空格，否则tokenizer会将其识别为一个整体
         texts.append(string)
+        #如果需要词特征和词向量
+        if seg_dim:
+            segs_features = get_seg_features("".join(string))
+            seg_sequence.append(segs_features)
+    seg_sequence = np.asarray(seg_sequence)
+    print("seg_sequence:", type(seg_sequence), seg_sequence.shape)
 
     #利用keras的tokenizer对texts进行处理
     tokenizer = Tokenizer()
@@ -144,3 +152,18 @@ def create_emb_matrix(word_index, embedding_index):
     # print(embedding_matrix.shape)
     print("embedding_matrix构建完成")
     return embedding_matrix
+
+#利用jieba分词对sentence进行分词作为词特征
+def get_seg_features(string):
+    seg_feature = []
+    # print(string)
+    for word in jieba.cut(string):
+        # print(word)
+        if len(word) == 1:
+            seg_feature.append(0)
+        else:
+            tmp = [2] * len(word)
+            tmp[0] = 1
+            tmp[-1] = 3
+            seg_feature.extend(tmp)
+    return seg_feature
