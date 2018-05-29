@@ -17,11 +17,11 @@ optimizer = "adam"
 lr = 0.001 #learning rate
 
 def create_model(embedding_matrix, tag_index):
-    #构建模型
+    #构建BiLSTM+CRF模型
     input = Input(shape=(None,))
     #word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
     word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
-    bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.7))(word_emb)
+    bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.8))(word_emb)
     #tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
     # (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
     # 最后输出维度为shape(None,None,len(tag_index)),每个节点的输出可以直接经过激活层进行判断，
@@ -34,7 +34,6 @@ def create_model(embedding_matrix, tag_index):
     crf = crf_layer(dense)
     model = Model(inputs=input, outputs=crf)
     model.summary()
-
     # 编译模型
     optmr = optimizers.Adam(lr=lr, beta_1=0.5)
     # model.compile(loss='categorical_crossentropy',
@@ -48,7 +47,7 @@ def create_model(embedding_matrix, tag_index):
     #单独的BiLSTM模型
     # input = Input(shape=(None,))
     # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
-    # bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.7))(word_emb)
+    # bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.8))(word_emb)
     # dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
     # model = Model(inputs=input, outputs=dense)
     # optmr = optimizers.Adam(lr=lr, beta_1=0.5)
