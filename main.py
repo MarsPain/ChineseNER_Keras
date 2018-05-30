@@ -2,11 +2,10 @@ import os
 import re
 import sklearn.model_selection
 from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix
-from model import create_model
-
+from model import create_model, seg_dim
 
 batch_size = 30
-seg_dim = 35    #词向量维度
+epochs = 50
 
 #path for data
 train_file = os.path.join("data", "example.train")
@@ -32,8 +31,6 @@ dev_data = prepare_data(dev_sentences, seg_dim)
 word_index, tag_index = train_data[1], train_data[3]
 # print(len(word_index))
 word_sequence_train, labels_train = train_data[0], train_data[2]
-if seg_dim:
-    seg_sequence = train_data[4]
 # print(labels_train, labels_train.shape)
 # print(word_sequence_train[50], '\n', tags_sequence_train[50])
 embedding_index = create_emb_index(emb_file)
@@ -43,7 +40,14 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
 model = create_model(embedding_matrix, tag_index)
-model.fit([word_sequence_train, seg_sequence], labels_train, batch_size=batch_size, epochs=300)
-score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
+if seg_dim:
+    seg_sequence_train = train_data[4]
+    seg_sequence_dev = dev_data[4]
+    model.fit([word_sequence_train, seg_sequence_train], labels_train, batch_size=batch_size, epochs=epochs)
+    score, acc = model.evaluate([word_sequence_dev, seg_sequence_dev], tags_sequence_dev, batch_size=batch_size)
+else:
+    model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
+    score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
+
 print('Test score:', score)
 print('Test accuracy:', acc)
