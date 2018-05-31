@@ -8,14 +8,14 @@ batch_size = 30
 epochs = 50
 
 #path for data
-train_file = os.path.join("data", "example.train")
-dev_file = os.path.join("data", "example.dev")
+# train_file = os.path.join("data", "example.train")
+# dev_file = os.path.join("data", "example.dev")
 #path for data_medicine_three
 # train_file = os.path.join("data", "example_medicine_three.train")
 # dev_file = os.path.join("data", "example_medicine_three.dev")
 #path for data_medicine_all
-# train_file = os.path.join("data", "example_medicine_all.train")
-# dev_file = os.path.join("data", "example_medicine_all.dev")
+train_file = os.path.join("data", "example_medicine_all.train")
+dev_file = os.path.join("data", "example_medicine_all.dev")
 emb_file = os.path.join("data", "wiki_100.utf8")    #path for pre_trained embedding
 
 #load data and get sentences

@@ -11,9 +11,10 @@ class CRF(Layer):
         """ignore_last_label：定义要不要忽略最后一个标签，起到mask的效果
         """
         self.ignore_last_label = 1 if ignore_last_label else 0
-        super(CRF, self).__init__(**kwargs)
+        super(CRF, self).__init__(**kwargs) #用super继承Layer类
     def build(self, input_shape):
         self.num_labels = input_shape[-1] - self.ignore_last_label
+        #初始化转移矩阵？
         self.trans = self.add_weight(name='crf_trans',
                                      shape=(self.num_labels, self.num_labels),
                                      initializer='glorot_uniform',
