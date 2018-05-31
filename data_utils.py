@@ -16,7 +16,8 @@ def load_sentences(path):
     sentences = []
     sentence = []
     for line in codecs.open(path, 'r', 'utf-8'):
-        line = re.sub('\d', '0', line.rstrip()) #将所有数字转为0
+        line = line.rstrip()    #如果标签类型用数字表示，则不能用下面的分割方法，会导致所有数字为0
+        # line = re.sub('\d', '0', line.rstrip()) #将所有数字转为0
         if not line:
             if len(sentence) > 0:
                 if 'START' not in sentence[0][0]:
@@ -40,6 +41,8 @@ def prepare_data(sentences, seg_dim):
     texts = []
     seg_sequence = []
     for s in sentences:
+        # tag = [w[-1] for w in s]
+        # print("tag:", tag)
         string = [w[0] for w in s]
         string = " ".join(string)   #由于是处理中文，所以拼接的时候加上空格，否则tokenizer会将其识别为一个整体
         texts.append(string)
@@ -62,6 +65,7 @@ def prepare_data(sentences, seg_dim):
     word_index = tokenizer.word_index   #word到索引的映射列表
 
     tags = [[char[-1] for char in s] for s in sentences]
+    # print("tags:", tags)
     dict_tags = {}
     for items in tags:
         for tag in items:
@@ -71,7 +75,7 @@ def prepare_data(sentences, seg_dim):
     #传统方法获取tag_to_id的映射和tag的序列表示
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
-    # print(tag_index)
+    # print("tag_index:",tag_index)
     #得到序列化的tags
     # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
     # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
@@ -123,8 +127,9 @@ def prepare_data(sentences, seg_dim):
 
 #根据字典dico创建双向映射
 def create_mapping(dict):
+    # print("dict:", dict)
     sorted_items = sorted(dict.items(), key=lambda x: (-x[1], x[0]))    #按照词频排序
-    # print(sorted_items)
+    # print("sorted_items:", sorted_items)
     # for i, v in enumerate(sorted_items):
     #     print(i, v)
     id_to_item = {i: v[0] for i, v in enumerate(sorted_items)}  #id（根据词频排序从0开始）到word

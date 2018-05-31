@@ -45,6 +45,7 @@ class CRF(Layer):
     def loss(self, y_true, y_pred): # 目标y_pred需要是one hot形式
         print("CRF正在计算loss...")
         mask = 1-y_true[:,1:,-1] if self.ignore_last_label else None
+        print(y_true, y_pred)
         y_true,y_pred = y_true[:,:,:self.num_labels],y_pred[:,:,:self.num_labels]
         init_states = [y_pred[:,0]] # 初始状态
         log_norm,_,_ = K.rnn(self.log_norm_step, y_pred[:,1:], init_states, mask=mask) # 计算Z向量（对数）

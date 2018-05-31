@@ -5,7 +5,7 @@ from data_utils import load_sentences, prepare_data, create_emb_index, create_em
 from model import create_model, seg_dim
 
 batch_size = 30
-epochs = 50
+epochs = 300
 
 #path for data
 # train_file = os.path.join("data", "example.train")
