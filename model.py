@@ -13,9 +13,9 @@ from keras_crf_test import CRF
 is_train = True
 is_save = True
 emb_dim = 100  #embedding size for single word
-seg_dim = 20 #embedding size for word's seg_feature(词向量维度)
+seg_dim = 35 #embedding size for word's seg_feature(词向量维度)
 lstm_dim = 100  #num of hidden units in LSTM
-dropout = 0.5
+dropout = 0.8
 optimizer = "adam"
 lr = 0.001 #learning rate
 
@@ -29,7 +29,7 @@ def create_model(embedding_matrix, tag_index):
         seg_input = Input(shape=(None, ))
         seg_emb = Embedding(4, seg_dim)(seg_input)
         word_emb = concatenate([word_emb, seg_emb], axis=-1)
-    bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.7))(word_emb)
+    bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=dropout))(word_emb)
     #tag_index为tag与索引的映射，TimeDistributed为包装器，将一个层应用到输入的每一个时间步上
     # (每一个时间步上一个word，所以要应用到每一个时间步上，才能对每一个word进行标注预测)，
     # 最后输出维度为shape(None,None,len(tag_index)),每个节点的输出可以直接经过激活层进行判断，
@@ -38,7 +38,8 @@ def create_model(embedding_matrix, tag_index):
     dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
     # print("dense:", dense)
     # model = Model(inputs=input, outputs=dense)
-    crf_layer = CRF(len(tag_index)) #若后接CRF
+    # crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
+    crf_layer = CRF(len(tag_index)) #keras_crf层
     crf = crf_layer(dense)
     if seg_dim:
         model = Model(inputs=[char_input, seg_input], outputs=crf)
@@ -51,14 +52,16 @@ def create_model(embedding_matrix, tag_index):
     #               optimizer=optmr,
     #               metrics=['accuracy'])
     #若使用crf作为最后一层，则修改模型编译的配置：
-    model.compile(loss=crf_layer.loss, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+    model.compile(
+                  # loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+                  loss=crf_layer.loss,    #keras_crf层
                   optimizer=optmr,
                   metrics=[crf_layer.accuracy])
 
     #单独的BiLSTM模型
     # input = Input(shape=(None,))
     # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
-    # bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=0.8))(word_emb)
+    # bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=dropout))(word_emb)
     # dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
     # model = Model(inputs=input, outputs=dense)
     # optmr = optimizers.Adam(lr=lr, beta_1=0.5)

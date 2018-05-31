@@ -43,6 +43,7 @@ class CRF(Layer):
     def call(self, inputs): # CRF本身不改变输出，它只是一个loss
         return inputs
     def loss(self, y_true, y_pred): # 目标y_pred需要是one hot形式
+        print("CRF正在计算loss...")
         mask = 1-y_true[:,1:,-1] if self.ignore_last_label else None
         y_true,y_pred = y_true[:,:,:self.num_labels],y_pred[:,:,:self.num_labels]
         init_states = [y_pred[:,0]] # 初始状态
@@ -51,6 +52,7 @@ class CRF(Layer):
         path_score = self.path_score(y_pred, y_true) # 计算分子（对数）
         return log_norm - path_score # 即log(分子/分母)
     def accuracy(self, y_true, y_pred): # 训练过程中显示逐帧准确率的函数，排除了mask的影响
+        print("CRF正在计算accuracy...")
         mask = 1-y_true[:,:,-1] if self.ignore_last_label else None
         y_true,y_pred = y_true[:,:,:self.num_labels],y_pred[:,:,:self.num_labels]
         isequal = K.equal(K.argmax(y_true, 2), K.argmax(y_pred, 2))
