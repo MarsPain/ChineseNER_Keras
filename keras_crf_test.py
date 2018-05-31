@@ -47,7 +47,7 @@ class CRF(Layer):
         mask = 1-y_true[:,1:,-1] if self.ignore_last_label else None
         # print(y_true, y_pred)
         y_true,y_pred = y_true[:,:,:self.num_labels],y_pred[:,:,:self.num_labels]
-        init_states = [y_pred[:,0]] # 初始状态
+        init_states = [y_pred[:,0]] #初始状态
         log_norm,_,_ = K.rnn(self.log_norm_step, y_pred[:,1:], init_states, mask=mask) # 计算Z向量（对数）
         log_norm = K.logsumexp(log_norm, 1, keepdims=True) # 计算Z（对数）
         path_score = self.path_score(y_pred, y_true) # 计算分子（对数）
