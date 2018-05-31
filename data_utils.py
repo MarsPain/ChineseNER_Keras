@@ -36,7 +36,7 @@ def load_sentences(path):
 
     return sentences
 
-def prepare_data(sentences, seg_dim):
+def prepare_data(sentences, seg_dim, tag_index):
     data = []
     texts = []
     seg_sequence = []
@@ -72,10 +72,6 @@ def prepare_data(sentences, seg_dim):
             dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
     # print(dict_tags)
 
-    #传统方法获取tag_to_id的映射和tag的序列表示
-    tag_to_id, id_to_tag = create_mapping(dict_tags)
-    tag_index = tag_to_id
-    # print("tag_index:",tag_index)
     #得到序列化的tags
     # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
     # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
@@ -97,6 +93,49 @@ def prepare_data(sentences, seg_dim):
     labels = np.asarray(labels)
     print("labels:", labels.shape)
 
+    data.append(word_sequence)
+    data.append(word_index)
+    data.append(labels)
+    if len(seg_sequence) > 0:
+        data.append(seg_sequence)
+    return data
+
+def get_tag_index(sentences):
+    tags = [[char[-1] for char in s] for s in sentences]
+    # print("tags:", tags)
+    dict_tags = {}
+    for items in tags:
+        for tag in items:
+            dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
+    # print(dict_tags)
+
+    #传统方法获取tag_to_id的映射和tag的序列表示
+    tag_to_id, id_to_tag = create_mapping(dict_tags)
+    tag_index = tag_to_id
+    # print("tag_index:",tag_index)
+    return tag_index
+
+    #传统方式得到序列化的tags
+    # # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
+    # # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
+    # # print("tags_sequence:", tags_sequence.shape, type(tags_sequence))
+    # all_label = []
+    # for s in sentences:
+    #     for i in range(max_sequence_length):
+    #         if i < len(s):
+    #             all_label.append(tag_index[s[i][-1]])
+    #         else:
+    #             all_label.append(0)
+    # # print("all_label:", all_label)
+    # #将多类别label转换为one-hot向量
+    # all_label = to_categorical(all_label)   #测试下to_categorical的参数即使是嵌套数组，依然能得到整个列表的one-hot表示？
+    # # print("all_label:", all_label)
+    # labels = []
+    # for i in range(len(sentences)):
+    #     labels.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
+    # labels = np.asarray(labels)
+    # print("labels:", labels.shape)
+
     #使用tokenizer获取tag_to_id的映射和tag的序列表示，但是存在tokenizer将“-”识别为空格所以行不通
     # tags = []
     # for s in sentences:
@@ -110,20 +149,12 @@ def prepare_data(sentences, seg_dim):
     # print(tags_sequence,len(tags_sequence))
 
     #使用keras的preprocessing.text包中的text_to_word_sequence和one-hot获取tag的序列表示，
-    # 无法对嵌套列表进行处理，按
+    # 好像无法对嵌套列表进行处理？
     # tag_to_id, id_to_tag = create_mapping(dict_tags)
     # tag_index = tag_to_id
     # # print(tag_index)
     # tags_sequence = [[tag_index[w[-1]] for w in s] for s in sentences]
     # tags_sequence = text_to_word_sequence(np.asarray(tags_sequence), split=" ")
-
-    data.append(word_sequence)
-    data.append(word_index)
-    data.append(labels)
-    data.append(tag_index)
-    if len(seg_sequence) > 0:
-        data.append(seg_sequence)
-    return data
 
 #根据字典dico创建双向映射
 def create_mapping(dict):

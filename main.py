@@ -1,7 +1,8 @@
 import os
 import re
 import sklearn.model_selection
-from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix
+from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix, \
+    get_tag_index
 from model import create_model, seg_dim
 
 batch_size = 30
@@ -23,13 +24,19 @@ train_sentences = load_sentences(train_file)
 dev_sentences = load_sentences(dev_file)
 # print(train_sentences[5], '\n', dev_sentences[5], '\n', dev_sentences[5])
 
-#prepare data，对sentences进行处理得到sentence的序列化表示，以及word到ID的映射序列
-train_data = prepare_data(train_sentences, seg_dim)
-# print("train_data:", "\n", train_data[0][2], "\n", train_data[1], "\n", train_data[2][2])
-dev_data = prepare_data(dev_sentences, seg_dim)
+#获取tag的映射字典
+tag_index = get_tag_index(train_sentences)
+# print("tag_index:", len(tag_index))
 
-word_index, tag_index = train_data[1], train_data[3]
+#prepare data，对sentences进行处理得到sentence的序列化表示，以及word到ID的映射序列
+train_data = prepare_data(train_sentences, seg_dim, tag_index)
+# print("train_data:", "\n", train_data[0][2], "\n", train_data[1], "\n", train_data[2][2])
+dev_data = prepare_data(dev_sentences, seg_dim, tag_index)
+
+#获取word的映射字典
+word_index = train_data[1]
 # print(len(word_index))
+# print("tag_index:", len(tag_index))
 word_sequence_train, labels_train = train_data[0], train_data[2]
 # print(labels_train, labels_train.shape)
 # print(word_sequence_train[50], '\n', tags_sequence_train[50])
