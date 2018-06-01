@@ -33,10 +33,21 @@ class CRF(Layer):
         要点：逐标签得分，加上转移概率得分。
         技巧：用“预测”点乘“目标”的方法抽取出目标路径的得分。
         """
+        """
+        这个所谓的目标路径的相对概率就是目标函数中后面一项（被减的部分），
+        根据CRF的原理，包括两个部分：
+        状态转移概率（两个相邻状态之间的关系）和状态概率（观测节点和状态节点之间的关系）
+        我们的目标就是最小化loss，最大化这个目标路径的相对概率。
+        """
+        #point_score就是在状态概率上的得分，用预测的标签序列与正确的标签序列进行点乘，
+        # 只关心每个标签是否预测正确
         point_score = K.sum(K.sum(inputs*labels, 2), 1, keepdims=True) # 逐标签得分
+        #trans_score就是在状态转移概率上的得分，不关心每个标签是否预测正确，
+        # 只关心标签和标签之间的转移本身是否合理
         labels1 = K.expand_dims(labels[:, :-1], 3)
         labels2 = K.expand_dims(labels[:, 1:], 2)
         labels = labels1 * labels2 # 两个错位labels，负责从转移矩阵中抽取目标转移得分
+        #这部分不怎么理解，trans是转移矩阵？
         trans = K.expand_dims(K.expand_dims(self.trans, 0), 0)
         trans_score = K.sum(K.sum(trans*labels, [2,3]), 1, keepdims=True)
         return point_score+trans_score # 两部分得分之和
@@ -48,8 +59,9 @@ class CRF(Layer):
         # print(y_true, y_pred)
         y_true,y_pred = y_true[:,:,:self.num_labels],y_pred[:,:,:self.num_labels]
         init_states = [y_pred[:,0]] #初始状态
+        # 通过rnn用递归地法计算规范化因子Z向量（未取对数之前的值），其中log_norm_step参数是一个函数
         log_norm,_,_ = K.rnn(self.log_norm_step, y_pred[:,1:], init_states, mask=mask) # 计算Z向量（对数）
-        log_norm = K.logsumexp(log_norm, 1, keepdims=True) # 计算Z（对数）
+        log_norm = K.logsumexp(log_norm, 1, keepdims=True) #对规范化因子取对数
         path_score = self.path_score(y_pred, y_true) # 计算分子（对数）
         return log_norm - path_score # 即log(分子/分母)
     def accuracy(self, y_true, y_pred): # 训练过程中显示逐帧准确率的函数，排除了mask的影响

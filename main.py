@@ -48,8 +48,8 @@ word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
 model = create_model(embedding_matrix, tag_index)
 if seg_dim:
-    seg_sequence_train = train_data[4]
-    seg_sequence_dev = dev_data[4]
+    seg_sequence_train = train_data[3]
+    seg_sequence_dev = dev_data[3]
     model.fit([word_sequence_train, seg_sequence_train], labels_train, batch_size=batch_size, epochs=epochs)
     score, acc = model.evaluate([word_sequence_dev, seg_sequence_dev], tags_sequence_dev, batch_size=batch_size)
 else:
