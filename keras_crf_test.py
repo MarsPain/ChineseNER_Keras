@@ -44,10 +44,10 @@ class CRF(Layer):
         point_score = K.sum(K.sum(inputs*labels, 2), 1, keepdims=True) # 逐标签得分
         #trans_score就是在状态转移概率上的得分，不关心每个标签是否预测正确，
         # 只关心标签和标签之间的转移本身是否合理
-        labels1 = K.expand_dims(labels[:, :-1], 3)
+        labels1 = K.expand_dims(labels[:, :-1], 3)  #labels是正确标签的one-hot序列
         labels2 = K.expand_dims(labels[:, 1:], 2)
         labels = labels1 * labels2 # 两个错位labels，负责从转移矩阵中抽取目标转移得分
-        #这部分不怎么理解，trans是转移矩阵？
+        #经过点乘，labels记录了标签的转移特征
         trans = K.expand_dims(K.expand_dims(self.trans, 0), 0)
         trans_score = K.sum(K.sum(trans*labels, [2,3]), 1, keepdims=True)
         return point_score+trans_score # 两部分得分之和
