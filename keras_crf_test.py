@@ -40,10 +40,10 @@ class CRF(Layer):
         我们的目标就是最小化loss，最大化这个目标路径的相对概率。
         """
         #point_score就是在状态概率上的得分，用前面的LSTM等模型预测的标签序列与正确的标签序列进行点乘，
-        # 只关心每个标签是否预测正确
+        # 只关心每个标签是否预测正确，预测标签是由前面的LSTM模型得到
         point_score = K.sum(K.sum(inputs*labels, 2), 1, keepdims=True) #逐标签得分
         #trans_score就是在状态转移概率上的得分，不关心每个标签是否预测正确，
-        # 只关心标签和标签之间的转移本身是否合理，CRF的任务和特色
+        # 只关心标签和标签之间的转移本身是否合理，CRF的任务
         labels1 = K.expand_dims(labels[:, :-1], 3)  #labels是正确标签的one-hot序列
         labels2 = K.expand_dims(labels[:, 1:], 2)
         labels = labels1 * labels2 # 两个错位labels，负责从转移矩阵中抽取目标转移得分
