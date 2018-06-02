@@ -6,9 +6,9 @@ from keras.models import Sequential, load_model, Model,optimizers
 from keras.layers import Embedding, LSTM, Dense, Activation, Input, Bidirectional, \
     TimeDistributed, Dropout, concatenate
 from keras.callbacks import TensorBoard, ModelCheckpoint
-from keras_contrib.layers import CRF
+# from keras_contrib.layers import CRF
 from keras.initializers import Zeros
-# from keras_crf_test import CRF
+from keras_crf_test import CRF
 
 is_train = True
 is_save = True
@@ -38,8 +38,8 @@ def create_model(embedding_matrix, tag_index):
     dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
     # print("dense:", dense)
     # model = Model(inputs=input, outputs=dense)
-    crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
-    # crf_layer = CRF(len(tag_index)) #keras_crf层
+    # crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
+    crf_layer = CRF(len(tag_index)) #keras_crf层
     crf = crf_layer(dense)
     if seg_dim:
         model = Model(inputs=[char_input, seg_input], outputs=crf)
@@ -53,8 +53,8 @@ def create_model(embedding_matrix, tag_index):
     #               metrics=['accuracy'])
     #若使用crf作为最后一层，则修改模型编译的配置：
     model.compile(
-                  loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
-                  # loss=crf_layer.loss,    #keras_crf层
+                  # loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+                  loss=crf_layer.loss,    #keras_crf层
                   optimizer=optmr,
                   metrics=[crf_layer.accuracy])
 
@@ -72,12 +72,13 @@ def create_model(embedding_matrix, tag_index):
     # 单独的CRF模型
     # input = Input(shape=(None,))
     # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
-    # crf_layer = CRF(len(tag_index), sparse_target=True) #若后接CRF
+    # crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
     # crf = crf_layer(word_emb)
     # model = Model(inputs=input, outputs=crf)
     # model.summary()
     # optmr = optimizers.Adam(lr=lr, beta_1=0.5)
-    # model.compile(loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+    # model.compile(
+    #               loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
     #               optimizer=optmr,
     #               metrics=[crf_layer.accuracy])
 

@@ -14,7 +14,7 @@ class CRF(Layer):
         super(CRF, self).__init__(**kwargs) #用super继承Layer类
     def build(self, input_shape):
         self.num_labels = input_shape[-1] - self.ignore_last_label
-        #初始化转移矩阵？
+        #初始化转移矩阵
         self.trans = self.add_weight(name='crf_trans',
                                      shape=(self.num_labels, self.num_labels),
                                      initializer='glorot_uniform',
@@ -47,9 +47,14 @@ class CRF(Layer):
         labels1 = K.expand_dims(labels[:, :-1], 3)  #labels是正确标签的one-hot序列
         labels2 = K.expand_dims(labels[:, 1:], 2)
         labels = labels1 * labels2 # 两个错位labels，负责从转移矩阵中抽取目标转移得分
+        print("labels", labels.shape)
         #经过点乘，labels记录了标签的转移特征
+        print("trans_befor", self.trans.shape)
         trans = K.expand_dims(K.expand_dims(self.trans, 0), 0)
+        print("trans_next", trans.shape, trans)
+        print("trans*labels:", trans*labels)
         trans_score = K.sum(K.sum(trans*labels, [2,3]), 1, keepdims=True)
+        print("trans_score", trans_score)
         return point_score+trans_score # 两部分得分之和
     def call(self, inputs): # CRF本身不改变输出，它只是一个loss
         return inputs
@@ -63,6 +68,9 @@ class CRF(Layer):
         log_norm,_,_ = K.rnn(self.log_norm_step, y_pred[:,1:], init_states, mask=mask) # 计算Z向量（对数）
         log_norm = K.logsumexp(log_norm, 1, keepdims=True) #对规范化因子取对数
         path_score = self.path_score(y_pred, y_true) # 计算分子（对数）
+        #log_norm和path_score中都包括了slef.trans：
+        # 因为trans保存了各个标签之间的转移概率，不管是log_norm还是path_score都需要
+        # 一方面trans会在训练过程中调整，保存了各个标签之间的转移概率
         return log_norm - path_score # 即log(分子/分母)
     def accuracy(self, y_true, y_pred): # 训练过程中显示逐帧准确率的函数，排除了mask的影响
         print("CRF正在计算accuracy...")

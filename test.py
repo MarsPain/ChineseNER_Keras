@@ -15,7 +15,7 @@
 # import tensorflow as tf
 # sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 
-#矩阵点乘
+#矩阵点乘的特点和技巧：会在点乘过程中对齐，比如(3,3,1,3)*(3,3,3,1)=(3,3,3,3)
 # # l5 = [[0],[0],[1]]
 # # l5 = [0]
 # # l5 = [[0], [1]]
@@ -42,6 +42,16 @@ print("l1", l1, l1.shape)
 l2 = l[:, 1:]
 l2 = np.expand_dims(l2, 2)
 print("l2", l2, l2.shape)
-l3 = l1 * l2
+l3 = l1 * l2    #keras_crf中的labels
 # 点乘后，每个矩阵的1所在位置揭示了由第几个标签（行数）到第几个标签（列数）的转换
 print("l3", l3, l3.shape)
+
+l4 = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
+l4 = np.asarray(l4)
+# print("l4:", l4, l4.shape)
+l5 = np.expand_dims(np.expand_dims(l4, 0), 0)   #keras_crf中的trans
+print("l5:", l5, l5.shape)
+l_result = l5 * l3
+print("l_result:", l_result, l_result.shape)
+l_result = np.sum(np.sum(l_result, (2, 3)), 1, keepdims=True)
+print(l_result)
