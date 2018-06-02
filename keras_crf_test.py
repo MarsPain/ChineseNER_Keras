@@ -39,11 +39,11 @@ class CRF(Layer):
         状态转移概率（两个相邻状态之间的关系）和状态概率（观测节点和状态节点之间的关系）
         我们的目标就是最小化loss，最大化这个目标路径的相对概率。
         """
-        #point_score就是在状态概率上的得分，用预测的标签序列与正确的标签序列进行点乘，
+        #point_score就是在状态概率上的得分，用前面的LSTM等模型预测的标签序列与正确的标签序列进行点乘，
         # 只关心每个标签是否预测正确
-        point_score = K.sum(K.sum(inputs*labels, 2), 1, keepdims=True) # 逐标签得分
+        point_score = K.sum(K.sum(inputs*labels, 2), 1, keepdims=True) #逐标签得分
         #trans_score就是在状态转移概率上的得分，不关心每个标签是否预测正确，
-        # 只关心标签和标签之间的转移本身是否合理
+        # 只关心标签和标签之间的转移本身是否合理，CRF的任务和特色
         labels1 = K.expand_dims(labels[:, :-1], 3)  #labels是正确标签的one-hot序列
         labels2 = K.expand_dims(labels[:, 1:], 2)
         labels = labels1 * labels2 # 两个错位labels，负责从转移矩阵中抽取目标转移得分
@@ -69,8 +69,9 @@ class CRF(Layer):
         log_norm = K.logsumexp(log_norm, 1, keepdims=True) #对规范化因子取对数
         path_score = self.path_score(y_pred, y_true) # 计算分子（对数）
         #log_norm和path_score中都包括了slef.trans：
-        # 因为trans保存了各个标签之间的转移概率，不管是log_norm还是path_score都需要
-        # 一方面trans会在训练过程中调整，保存了各个标签之间的转移概率
+        #trans保存了各个标签之间的转移概率，不管是log_norm还是path_score都要用到trans
+        # 进行计算，该CRF前面的模型对每个节点的输出进行预测，然后该CRF层引入转移概率矩阵参数trans，
+        # 对预测序列之间的关系进行限定（若出现不合理的标签转移则增加loss，之前的LSTM模型无法做到这一点）
         return log_norm - path_score # 即log(分子/分母)
     def accuracy(self, y_true, y_pred): # 训练过程中显示逐帧准确率的函数，排除了mask的影响
         print("CRF正在计算accuracy...")
