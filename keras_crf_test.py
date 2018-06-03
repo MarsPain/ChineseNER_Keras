@@ -59,6 +59,8 @@ class CRF(Layer):
     def call(self, inputs): # CRF本身不改变输出，它只是一个loss
         return inputs
     def loss(self, y_true, y_pred): # 目标y_pred需要是one hot形式
+        #y_pred是one-hot形式，长度为标签数量，每个索引处为预测是相应标签的概率！即每个节点的状态概率（对每个标签的打分指数），
+        # 而不是只有一个位置被激活为1的one-hot向量，否则无法正常计算归一化因子和目标路径的相对概率。
         print("CRF正在计算loss...")
         mask = 1-y_true[:,1:,-1] if self.ignore_last_label else None
         # print(y_true, y_pred)
