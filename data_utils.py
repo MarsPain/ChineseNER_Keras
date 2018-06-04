@@ -64,14 +64,6 @@ def prepare_data(sentences, seg_dim, tag_index):
     print("word_sequence:", type(word_sequence), word_sequence.shape)
     word_index = tokenizer.word_index   #word到索引的映射列表
 
-    tags = [[char[-1] for char in s] for s in sentences]
-    # print("tags:", tags)
-    dict_tags = {}
-    for items in tags:
-        for tag in items:
-            dict_tags[tag] = dict_tags[tag]+1 if tag in dict_tags else 1
-    # print(dict_tags)
-
     #得到序列化的tags
     # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
     # tags_sequence = np.asarray([tag_index[w[-1]] for w in s for s in sentences])
@@ -84,6 +76,15 @@ def prepare_data(sentences, seg_dim, tag_index):
             else:
                 all_label.append(0)
     # print("all_label:", all_label)
+
+    print("tag_index:", tag_index)
+    imp_weight_dict = {}
+    set = ("B-1", "I-1", "E-1", "O-1", "S-1")
+    for key, value in tag_index.items():
+        if  key in set:
+            imp_weight_dict[value] = 2
+    print(imp_weight_dict)
+
     #将多类别label转换为one-hot向量
     all_label = to_categorical(all_label)   #测试下to_categorical的参数即使是嵌套数组，依然能得到整个列表的one-hot表示？
     # print("all_label:", all_label)
@@ -92,6 +93,10 @@ def prepare_data(sentences, seg_dim, tag_index):
         labels.append(all_label[i*max_sequence_length:(i+1)*max_sequence_length])
     labels = np.asarray(labels)
     print("labels:", labels.shape)
+
+    for i in range(len(labels)):
+        if np.argmax(labels[i]) in imp_weight_dict:
+            labels[i] = labels[i] * imp_weight_dict[np.argmax(labels[i])]
 
     data.append(word_sequence)
     data.append(word_index)
