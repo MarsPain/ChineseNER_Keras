@@ -2,13 +2,13 @@ import os
 import re
 import sklearn.model_selection
 from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix, \
-    get_tag_index, max_sequence_length, pred_to_true
+    get_tag_index, max_sequence_length, pred_to_true, evaluate_results
 from model import Model_Class, seg_dim
 import numpy as np
 
 batch_size = 30
 epochs = 3
-train_file = os.path.join("data", "example_medicine_all.train")
+result_path = os.path.join("result")
 
 #path for data
 # train_file = os.path.join("data", "example.train")
@@ -61,6 +61,9 @@ else:
     model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
     predict = model.predict(word_sequence_dev, batch_size=batch_size)
     results = pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag)
+    eval_results = evaluate_results(results, result_path)
+    for eval_result in eval_results:
+        print(eval_result)
     score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
 
 print('Test score:', score)

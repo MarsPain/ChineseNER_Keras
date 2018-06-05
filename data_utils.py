@@ -7,6 +7,7 @@ from keras.utils.np_utils import to_categorical
 from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.sequence import pad_sequences
 import jieba
+from conlleval import return_report
 
 emb_dim = 100
 max_sequence_length = 50
@@ -237,3 +238,15 @@ def pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag):
             result.append(" ".join([char_true[0],char_true[1], pred]))
         results.append(result)
     return results
+
+def evaluate_results(results, result_path):
+    output_file = os.path.join(result_path, "ner_predict.utf8")
+    with open(output_file, "w", encoding="utf8") as f:
+        to_write = []
+        for block in results:
+            for line in block:
+                to_write.append(line + "\n")
+            to_write.append("\n")
+        f.writelines(to_write)
+    eval_lines = return_report(output_file)
+    return eval_lines
