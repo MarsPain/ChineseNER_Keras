@@ -3,7 +3,7 @@ import re
 import sklearn.model_selection
 from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix, \
     get_tag_index
-from model import create_model, seg_dim
+from model import Model_Class, seg_dim
 
 batch_size = 30
 epochs = 30
@@ -46,7 +46,8 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 # print(embedding_matrix)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
-model = create_model(embedding_matrix, tag_index)
+model_class = Model_Class()
+model = model_class.create_model(embedding_matrix, tag_index)
 if seg_dim:
     seg_sequence_train = train_data[3]
     seg_sequence_dev = dev_data[3]
