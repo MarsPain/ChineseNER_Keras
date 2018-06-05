@@ -61,7 +61,7 @@ def prepare_data(sentences, seg_dim, tag_index):
     tokenizer.fit_on_texts(texts)   #texts作为处理对象
     word_sequence = tokenizer.texts_to_sequences(texts)  #将文本转换为由索引表示的序列数据
     #是否需要对word_sequence进行填充处理？
-    word_sequence = pad_sequences(word_sequence, maxlen=max_sequence_length)
+    word_sequence = pad_sequences(word_sequence, maxlen=max_sequence_length, padding="post")    #对padding进行设置，否则会默认从前面开始填充
     print("word_sequence:", type(word_sequence), word_sequence.shape)
     word_index = tokenizer.word_index   #word到索引的映射列表
 

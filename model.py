@@ -83,4 +83,19 @@ class Model_Class:
         #               optimizer=optmr,
         #               metrics=[crf_layer.accuracy])
 
+        #序列式模型
+        # model = Sequential()
+        # model.add(Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix], input_shape=(None,)))
+        # model.add(Bidirectional(LSTM(100, return_sequences=True, dropout=dropout)))
+        # model.add(TimeDistributed(Dense(len(tag_index))))
+        # crf_layer = CRF(len(tag_index), sparse_target = True)
+        # model.add(crf_layer)
+        # model.summary()
+        # optmr = optimizers.Adam(lr=lr, beta_1=0.5)
+        # model.compile(
+        #       loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+        #       # loss=crf_layer.loss,    #keras_crf层
+        #       optimizer=optmr,
+        #       metrics=[crf_layer.accuracy])
+
         return model
