@@ -2,7 +2,7 @@ import os
 import re
 import sklearn.model_selection
 from data_utils import load_sentences, prepare_data, create_emb_index, create_emb_matrix, \
-    get_tag_index, max_sequence_length
+    get_tag_index, max_sequence_length, pred_to_true
 from model import Model_Class, seg_dim
 import numpy as np
 
@@ -49,26 +49,6 @@ embedding_matrix = create_emb_matrix(word_index, embedding_index)
 # print(embedding_matrix)
 word_sequence_dev, tags_sequence_dev = dev_data[0], dev_data[2]
 
-#验证函数
-def evaluate(predict, tags_sequence_dev):
-    # print(len(dev_sentences))
-    # print(predict.shape)
-    # print(len(tags_sequence_dev))
-    # for i in range(len(dev_sentences)):
-    #     print(i)
-    results = []
-    for i in range(len(dev_sentences)):
-        result = []
-        # print(dev_sentences[i][:50])
-        # print("dev_sentences", len(dev_sentences[i][:50]))
-        string_true = dev_sentences[i][:50]
-        pred_list = [id_to_tag[int(np.argmax(x))] for x in predict[i][:len(dev_sentences[i])]]
-        # print("pred:", len(pred))
-        for char_true, pred in zip(string_true, pred_list):
-            result.append(" ".join([char_true[0],char_true[1], pred]))
-        results.append(result)
-    return results
-
 #进行训练和测试
 model_class = Model_Class()
 model = model_class.create_model(embedding_matrix, tag_index)
@@ -80,7 +60,7 @@ if seg_dim:
 else:
     model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
     predict = model.predict(word_sequence_dev, batch_size=batch_size)
-    results = evaluate(predict, tags_sequence_dev)
+    results = pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag)
     score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
 
 print('Test score:', score)

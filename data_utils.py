@@ -217,3 +217,23 @@ def get_seg_features(string):
         seg_feature = seg_feature[:50]
     # print(len(seg_feature))
     return seg_feature
+
+#输出预测值并与字符和真实标签拼接
+def pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag):
+    # print(len(dev_sentences))
+    # print(predict.shape)
+    # print(len(tags_sequence_dev))
+    # for i in range(len(dev_sentences)):
+    #     print(i)
+    results = []
+    for i in range(len(dev_sentences)):
+        result = []
+        # print(dev_sentences[i][:50])
+        # print("dev_sentences", len(dev_sentences[i][:50]))
+        string_true = dev_sentences[i][:50]
+        pred_list = [id_to_tag[int(np.argmax(x))] for x in predict[i][:len(dev_sentences[i])]]
+        # print("pred:", len(pred))
+        for char_true, pred in zip(string_true, pred_list):
+            result.append(" ".join([char_true[0],char_true[1], pred]))
+        results.append(result)
+    return results
