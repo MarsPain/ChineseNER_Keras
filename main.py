@@ -59,8 +59,12 @@ if seg_dim:
     score, acc = model.evaluate([word_sequence_dev, seg_sequence_dev], tags_sequence_dev, batch_size=batch_size)
 else:
     model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
-    predict = model.predict(word_sequence_dev, batch_size=batch_size)
-    results = pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag)
+    predict_list = model.predict(word_sequence_dev, batch_size=batch_size)
+    for i in range(len(dev_sentences)):
+        for j in range(len(predict_list[i])):
+            print(predict_list[i][j].shape)
+            print(np.argmax(predict_list[i][j]))
+    results = pred_to_true(predict_list, dev_sentences, tags_sequence_dev, id_to_tag)
     eval_results = evaluate_results(results, result_path)
     for eval_result in eval_results:
         print(eval_result)

@@ -39,9 +39,9 @@ class Model_Class:
         dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
         # print("dense:", dense)
         # model = Model(inputs=input, outputs=dense)
-        self.crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
+        crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
         # crf_layer = CRF(len(tag_index)) #keras_crf层
-        crf = self.crf_layer(dense)
+        crf = crf_layer(dense)
         if seg_dim:
             model = Model(inputs=[char_input, seg_input], outputs=crf)
         else:
@@ -54,10 +54,10 @@ class Model_Class:
         #               metrics=['accuracy'])
         #若使用crf作为最后一层，则修改模型编译的配置：
         model.compile(
-                      loss=self.crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
+                      loss=crf_layer.loss_function, #注意这里的参数配置，crf_layer为对CRF()进行初始化的命名
                       # loss=crf_layer.loss,    #keras_crf层
                       optimizer=optmr,
-                      metrics=[self.crf_layer.accuracy])
+                      metrics=[crf_layer.accuracy])
 
         #单独的BiLSTM模型
         # input = Input(shape=(None,))

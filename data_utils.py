@@ -10,7 +10,7 @@ import jieba
 from conlleval import return_report
 
 emb_dim = 100
-max_sequence_length = 50
+max_sequence_length = 100
 
 #加载数据并用嵌套列表存储每个sentence以及sentence中的每个word以及相应的标注
 def load_sentences(path):
@@ -83,7 +83,7 @@ def prepare_data(sentences, seg_dim, tag_index):
     set = ("B-1", "I-1", "E-1", "O-1", "S-1")
     for key, value in tag_index.items():
         if  key in set:
-            imp_weight_dict[value] = 2
+            imp_weight_dict[value] = 1
     print(imp_weight_dict)
 
     #将多类别label转换为one-hot向量
@@ -224,8 +224,6 @@ def pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag):
     # print(len(dev_sentences))
     # print(predict.shape)
     # print(len(tags_sequence_dev))
-    # for i in range(len(dev_sentences)):
-    #     print(i)
     results = []
     for i in range(len(dev_sentences)):
         result = []
@@ -233,10 +231,11 @@ def pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag):
         # print("dev_sentences", len(dev_sentences[i][:50]))
         string_true = dev_sentences[i][:50]
         pred_list = [id_to_tag[int(np.argmax(x))] for x in predict[i][:len(dev_sentences[i])]]
-        # print("pred:", len(pred))
+        # print("pred_list:", pred_list, len(pred_list))
         for char_true, pred in zip(string_true, pred_list):
             result.append(" ".join([char_true[0],char_true[1], pred]))
         results.append(result)
+        # print("results:", results)
     return results
 
 def evaluate_results(results, result_path):
