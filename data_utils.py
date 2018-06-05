@@ -118,7 +118,7 @@ def get_tag_index(sentences):
     tag_to_id, id_to_tag = create_mapping(dict_tags)
     tag_index = tag_to_id
     # print("tag_index:",tag_index)
-    return tag_index
+    return tag_index, id_to_tag
 
     #传统方式得到序列化的tags
     # # tags_sequence = np.asarray([[tag_index[w[-1]] for w in s] for s in sentences])
