@@ -5,6 +5,7 @@ from data_utils import load_sentences, prepare_data, create_emb_index, create_em
     get_tag_index, max_sequence_length, pred_to_true, evaluate_results
 from model import Model_Class, seg_dim
 import numpy as np
+from sklearn.metrics import classification_report
 
 batch_size = 30
 epochs = 3
@@ -63,6 +64,16 @@ else:
     # print("word_sequence_dev", word_sequence_dev, word_sequence_dev.shape)
     predict_list = model.predict(word_sequence_dev, batch_size=batch_size)
     # print("predict_list", predict_list.shape)
+    #用classification_report计算每一类标签的准确率，错误
+    # predict_lists = []
+    # for i in range(len(dev_sentences)):
+    #     for j in range(len(predict_list[i])):
+    #         predict_lists.append(np.argmax(predict_list[i][j]))
+    # true_lists = []
+    # for i in range(len(dev_sentences)):
+    #     for j in range(len(tags_sequence_dev[i])):
+    #         true_lists.append(np.argmax(tags_sequence_dev[i][j]))
+    # print(classification_report(true_lists, predict_lists))
     # for i in range(len(dev_sentences)):
     #     for j in range(len(predict_list[i])):
     #         print(predict_list[i][j].shape)
