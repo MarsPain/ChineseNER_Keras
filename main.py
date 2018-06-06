@@ -62,8 +62,21 @@ else:
     # print("word_sequence_dev", word_sequence_train, word_sequence_train.shape)
     model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
     # print("word_sequence_dev", word_sequence_dev, word_sequence_dev.shape)
-    predict_list = model.predict(word_sequence_dev, batch_size=batch_size)
-    # print("predict_list", predict_list.shape)
+    score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
+
+    #尝试分别计算每种实体标签的准确率
+    # predict_list = model.predict(word_sequence_dev)
+    # print("predict_list", predict_list.shape, predict_list)
+    # for i in range(len(dev_sentences)):
+    #     for j in range(len(predict_list[i])):
+    #         print(predict_list[i][j].shape)
+    #         print(np.argmax(predict_list[i][j]))
+
+    # results = pred_to_true(predict_list, dev_sentences, tags_sequence_dev, id_to_tag)
+    # eval_results = evaluate_results(results, result_path)
+    # for eval_result in eval_results:
+    #     print(eval_result)
+
     #用classification_report计算每一类标签的准确率，错误
     # predict_lists = []
     # for i in range(len(dev_sentences)):
@@ -74,15 +87,7 @@ else:
     #     for j in range(len(tags_sequence_dev[i])):
     #         true_lists.append(np.argmax(tags_sequence_dev[i][j]))
     # print(classification_report(true_lists, predict_lists))
-    # for i in range(len(dev_sentences)):
-    #     for j in range(len(predict_list[i])):
-    #         print(predict_list[i][j].shape)
-    #         print(np.argmax(predict_list[i][j]))
-    results = pred_to_true(predict_list, dev_sentences, tags_sequence_dev, id_to_tag)
-    eval_results = evaluate_results(results, result_path)
-    for eval_result in eval_results:
-        print(eval_result)
-    score, acc = model.evaluate(word_sequence_dev, tags_sequence_dev, batch_size=batch_size)
+
 
 print('Test score:', score)
 print('Test accuracy:', acc)
