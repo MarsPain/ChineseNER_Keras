@@ -24,7 +24,7 @@ class Model_Class:
         #构建BiLSTM+CRF模型
         char_input = Input(shape=(None,))
         #word_index为用tokenizer处理后的word_index，embedding_matrix为词嵌入矩阵
-        word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(char_input)
+        word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix], mask_zero=True)(char_input)
         #若需要词特征，则进行字词向量的拼接
         if seg_dim:
             seg_input = Input(shape=(None, ))
@@ -61,7 +61,7 @@ class Model_Class:
 
         #单独的BiLSTM模型
         # input = Input(shape=(None,))
-        # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
+        # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix], mask_zero=True)(input)
         # bilstm = Bidirectional(LSTM(100, return_sequences=True, dropout=dropout))(word_emb)
         # dense = TimeDistributed(Dense(len(tag_index)))(bilstm)
         # model = Model(inputs=input, outputs=dense)
@@ -72,7 +72,7 @@ class Model_Class:
 
         # 单独的CRF模型
         # input = Input(shape=(None,))
-        # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix])(input)
+        # word_emb = Embedding(len(embedding_matrix), emb_dim, weights=[embedding_matrix], mask_zero=True)(input)
         # crf_layer = CRF(len(tag_index), sparse_target = True) #keras_contrib包的CRF层 ,sparse_target是什么参数？
         # crf = crf_layer(word_emb)
         # model = Model(inputs=input, outputs=crf)

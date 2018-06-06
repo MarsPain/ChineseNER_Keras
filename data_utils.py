@@ -10,7 +10,7 @@ import jieba
 from conlleval import return_report
 
 emb_dim = 100
-max_sequence_length = 100
+max_sequence_length = 50
 
 #加载数据并用嵌套列表存储每个sentence以及sentence中的每个word以及相应的标注
 def load_sentences(path):
@@ -229,7 +229,7 @@ def pred_to_true(predict,dev_sentences, tags_sequence_dev, id_to_tag):
         result = []
         # print(dev_sentences[i][:50])
         # print("dev_sentences", len(dev_sentences[i][:50]))
-        string_true = dev_sentences[i][:50]
+        string_true = dev_sentences[i][:len(dev_sentences[i])]
         pred_list = [id_to_tag[int(np.argmax(x))] for x in predict[i][:len(dev_sentences[i])]]
         # print("pred_list:", pred_list, len(pred_list))
         for char_true, pred in zip(string_true, pred_list):

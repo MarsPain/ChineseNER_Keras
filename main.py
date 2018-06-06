@@ -62,6 +62,7 @@ else:
     model.fit(word_sequence_train, labels_train, batch_size=batch_size, epochs=epochs)
     # print("word_sequence_dev", word_sequence_dev, word_sequence_dev.shape)
     predict_list = model.predict(word_sequence_dev, batch_size=batch_size)
+    # print("predict_list", predict_list.shape)
     # for i in range(len(dev_sentences)):
     #     for j in range(len(predict_list[i])):
     #         print(predict_list[i][j].shape)
